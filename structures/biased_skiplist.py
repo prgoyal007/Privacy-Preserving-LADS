@@ -56,17 +56,17 @@ class BiasedSkipList:
     def search(self, key):
         node = self.header
         cost = 0
-        print(f"Searching for {key}...")
+        # print(f"Searching for {key}...")
 
         for i in reversed(range(self.level + 1)):  # top to bottom
-            print(f" Level {i}: starting at {node.key if node else 'None'}")
+            # print(f" Level {i}: starting at {node.key if node else 'None'}")
             while node.forward[i] and node.forward[i].key < key:
                 node = node.forward[i]
                 cost += 1
-                print(f"   → moved right to {node.key}")
+                # print(f"   → moved right to {node.key}")
             if node.forward[i] and node.forward[i].key == key:
                 return node.forward[i], cost + 1
-            print(f"   ↓ drop down from level {i}")
+            # print(f"   ↓ drop down from level {i}")
 
         return None, cost
 

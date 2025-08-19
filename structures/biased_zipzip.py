@@ -22,11 +22,15 @@ class ZipZipTree:
 		self.root = None
 		self.size = 0	# number of nodes in the tree
 
-	def get_random_rank(self) -> Rank:
+	def get_random_rank(self, freq: float = None) -> Rank:
 		# Geometric Distribution: # of failures before the first success
 		geo_rank = 0
 		while random.random() < 0.5:
 			geo_rank += 1
+		
+		if freq is not None:
+			# Change geometric rank based on frequency
+			geo_rank += math.floor(math.log2(freq))
 
 		# Uniform Distribution: random int from 0 to log(capacity)^3 - 1
 		uniform_max = int(math.log(self.capacity, 2) ** 3) - 1
@@ -82,18 +86,20 @@ class ZipZipTree:
 		
 		return node	# unchanged root
 
-	def find(self, key: KeyType) -> ValType:
+	def find(self, key: KeyType):
 		node = self.root
+		cost = 0
 		while node:
+			cost += 1
 			if key == node.key:
 				# found the key, return the value
-				return node.val	
+				return node.val, cost
 			elif key < node.key:
 				node = node.left
 			else:
 				node = node.right
 		# key not found in the tree
-		return KeyError(f"Key {key} not found in the tree.")
+		return None, cost
 
 	def get_size(self) -> int:
 		return self.size
