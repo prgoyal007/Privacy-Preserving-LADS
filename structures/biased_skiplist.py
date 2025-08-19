@@ -21,8 +21,7 @@ class BiasedSkipList:
             lvl += 1
 
         if freq is not None:
-            # add bias: floor(log2(freq * n)) 
-            # (ensure argument ≥ 1 before taking log2)
+            # add bias: floor(log2(freq)) 
             biased = math.floor(math.log2(max(1, freq * self.capacity)))
             lvl += biased
 

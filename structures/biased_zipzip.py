@@ -88,6 +88,19 @@ class ZipZipTree:
 
 	def find(self, key: KeyType):
 		node = self.root
+		while node:
+			if key == node.key:
+				# found the key, return the value
+				return node.val
+			elif key < node.key:
+				node = node.left
+			else:
+				node = node.right
+		# key not found in the tree
+		return None
+	
+	def find_with_cost(self, key: KeyType):
+		node = self.root
 		cost = 0
 		while node:
 			cost += 1
@@ -98,7 +111,7 @@ class ZipZipTree:
 				node = node.left
 			else:
 				node = node.right
-		# key not found in the tree
+			# key not found in the tree
 		return None, cost
 
 	def get_size(self) -> int:
@@ -110,10 +123,6 @@ class ZipZipTree:
 	def get_depth(self, key: KeyType):
 		# similar to get_height, but only for the path from the root to the node with the given key
 		return self.recurse_depth(self.root, key, 0)
-
-	# feel free to define new methods in addition to the above
-	# fill in the definitions of each required member function (above),
-	# and for any additional member functions you define
 
 	def recurse_height(self, node: Node) -> int:
 		if not node:
@@ -182,7 +191,6 @@ class ZipZipTree:
 			right.left = self.zip(left, right.left)
 			return right
 			
-	# FOR TESTING PURPOSES ONLY, DELETE LATER
 	def print_tree(self, node=None, indent="", position="root", visited=None):
 		if visited is None:
 			visited = set()
