@@ -58,10 +58,11 @@ class SkipList:
             while node.forward[i] and node.forward[i].key < key:
                 node = node.forward[i]
                 cost += 1
-                print(f"   → moved right to {node.key}")
+                # print(f"   → moved right to {node.key}")
             if node.forward[i] and node.forward[i].key == key:
                 return node.forward[i], cost + 1
             # print(f"   ↓ drop down from level {i}")
+            cost += 1
 
         return None, cost
 
