@@ -20,7 +20,7 @@ def build_structures(n):
     # 3. ZipZipTree
     zzt = ZipZipTree(capacity=n)
     for k in keys:
-        # ZipZipTree insert takes value and rank — use k as val for now
+        # Insert k as both key and value, rank is generated on its own
         zzt.insert(k, k)
 
     return sl, bsl, zzt, keys, freqs
