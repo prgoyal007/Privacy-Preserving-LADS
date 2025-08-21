@@ -39,9 +39,10 @@ class BiasedSkipList:
             update[i] = node
 
         node = node.forward[0]
-
+        
         if not node or node.key != key:
             lvl = self.random_level(freq)
+            print(f"Inserting {key} with freq={freq}, assigned level={lvl}")
             if lvl > self.level:
                 for i in range(self.level + 1, lvl + 1):
                     update[i] = self.header

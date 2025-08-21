@@ -16,13 +16,15 @@ class Rank:
 	geometric_rank: int
 	uniform_rank: int
 
-class ZipZipTree:
+class Thresholded_ZipZipTree:
 	def __init__(self, capacity: int):
 		self.capacity = capacity
 		self.root = None
 		self.size = 0	# number of nodes in the tree
 
 	def get_random_rank(self, freq: float = None) -> Rank:
+		freq = max(freq/2, 1/(2 * self.capacity))
+
 		# Geometric Distribution: # of failures before the first success
 		geo_rank = 0
 		while random.random() < 0.5:

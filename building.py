@@ -1,6 +1,7 @@
 from structures.skiplist import SkipList
 from structures.biased_skiplist import BiasedSkipList
 from structures.biased_zipzip import ZipZipTree
+from structures.zipzip_thresholded import Thresholded_ZipZipTree
 from dataset import generate_dataset
 
 def build_structures(n):
@@ -21,6 +22,11 @@ def build_structures(n):
     zzt = ZipZipTree(capacity=n)
     for k in keys:
         # Insert k as both key and value, rank is generated on its own
-        zzt.insert(k, k)
+        zzt.insert(k, k, freqs[k])
+    
+    thresholded_zzt = Thresholded_ZipZipTree(capacity=n)
+    for k in keys:
+        # Insert k as both key and value, rank is generated on its own
+        thresholded_zzt.insert(k, k, freqs[k])
 
-    return sl, bsl, zzt, keys, freqs
+    return sl, bsl, zzt, thresholded_zzt, keys, freqs

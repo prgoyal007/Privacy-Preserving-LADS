@@ -9,12 +9,11 @@ def generate_dataset(n):
     keys = list(range(n))
     
     # generate random positive numbers
-    raw_freqs = [random.random() for _ in range(n)]
+    raw_freqs = [random.randint(1, n) for _ in range(n)]
     
     # normalize so they sum to 1
     total = sum(raw_freqs)
     freqs = [f/total for f in raw_freqs]
-    
     # store in dict {key: frequency}
     freq_dict = {k: f for k, f in zip(keys, freqs)}
     

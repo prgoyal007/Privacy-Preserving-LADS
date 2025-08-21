@@ -2,6 +2,7 @@ import random
 from dataset import generate_dataset
 from building import build_structures
 
+
 def generate_queries(keys, freqs, num_queries=10000):
     # keys chosen proportional to their frequency
     # Ex. 
@@ -18,7 +19,7 @@ def generate_queries(keys, freqs, num_queries=10000):
 
 
 def run_experiment(n=100, num_queries=10000):
-    sl, bsl, zzt, keys, freqs = build_structures(n)
+    sl, bsl, zzt, thresholded_zzt, keys, freqs = build_structures(n)
     queries = generate_queries(keys, freqs, num_queries)
 
     results = {}
@@ -28,26 +29,32 @@ def run_experiment(n=100, num_queries=10000):
     for q in queries:
         _, cost = sl.search(q)
         total += cost
-    results["SkipList"] = (total, total/num_queries)
+    results["SkipList\n"] = (total, total/num_queries)
 
     # Biased SkipList
     total = 0
     for q in queries:
         _, cost = bsl.search(q)
         total += cost
-    results["BiasedSkipList"] = (total, total/num_queries)
+    results["BiasedSkipList\n"] = (total, total/num_queries)
 
     # ZipZipTree
     total = 0
     for q in queries:
         val, cost = zzt.find_with_cost(q)   # needs a find_with_cost method
         total += cost
-    results["ZipZipTree"] = (total, total/num_queries)
+    results["ZipZipTree\n"] = (total, total/num_queries)
 
+    # Thresholded ZipZipTree
+    total = 0
+    for q in queries:
+        val, cost = thresholded_zzt.find_with_cost(q)
+        total += cost
+    results["ThresholdedZipZipTree\n"] = (total, total/num_queries)
     return results
 
 
 if __name__ == "__main__":
-    results = run_experiment(n=10, num_queries=50)
+    results = run_experiment(n=10, num_queries=100)
     for name, (total, avg) in results.items():
         print(f"{name}: total cost={total}, avg cost={avg:.3f}")
