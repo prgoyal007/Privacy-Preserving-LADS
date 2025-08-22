@@ -1,13 +1,3 @@
-import json
-
-from DataGenerator import *
-from structures.DynamicRSL import *
-from structures.StaticRSL import *
-from structures.BiasedZipZipTree import *
-from structures.ThresholdZipZipTree import *
-from structures.Treap import *
-from structures.AVLTree import *
-
 """
 Purpose: 
 - Generate test sequences where requests (keys/queries) follow a Zipfian distribution with randomly chosen parameters.
@@ -25,6 +15,16 @@ Summary:
 - Workload parameters chosen randomly (average-case realism).
 - Does the structure handle typical workloads?
 """
+
+import json
+
+from DataGenerator import *
+from structures.DynamicRSL import *
+from structures.StaticRSL import *
+from structures.BiasedZipZipTree import *
+from structures.ThresholdZipZipTree import *
+from structures.Treap import *
+from structures.AVLTree import *
 
 def TestDS(ds, ordered_elements, search_elements, path_to_save, true_search=False, __splay_cost__=False,
            __print__=False):
@@ -51,13 +51,11 @@ def read_data(path):
     with open(path) as reader:
         return json.load(reader)
 
-
+# Parameters for Robust Zipfian Test + Randomness
 ns = [1000, 2000 ,5000]
-
-errors = [0, 0.01,  0.45, 0.9]
-
-search_size = 100000
 alphas = [1, 1.25, 1.5, 2, 3]
+errors = [0, 0.01,  0.45, 0.9]
+search_size = 100000
 
 
 __generate_data__ = True
