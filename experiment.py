@@ -18,26 +18,12 @@ def generate_queries(keys, freq_dict, num_queries=10000):
 
 def run_experiment(n=100, num_queries=10000):
     # Build data structures
-    sl, bsl, zzt, thresholded_zzt, keys, freq_dict = build_structures(n)
+    zzt, thresholded_zzt, keys, freq_dict = build_structures(n)
 
     # Generate queries proportional to frequencies
     queries = generate_queries(keys, freq_dict, num_queries)
 
     results = {}
-
-    # Test Standard SkipList
-    total = 0
-    for q in queries:
-        _, cost = sl.search(q)
-        total += cost
-    results["Standard SkipList"] = (total, total / num_queries)
-
-    # Test Biased SkipList
-    total = 0
-    for q in queries:
-        _, cost = bsl.search(q)
-        total += cost
-    results["Biased SkipList"] = (total, total / num_queries)
 
     # Test ZipZipTree
     total = 0
@@ -58,12 +44,9 @@ def run_experiment(n=100, num_queries=10000):
 if __name__ == "__main__":
     n = 10
     num_queries = 100
-
     print(f"\n=== Running Experiment: n={n}, num_queries={num_queries} ===\n")
-
     results = run_experiment(n=n, num_queries=num_queries)
 
-    print("")
     for name, (total, avg) in results.items():
         print(f"{name}: Total cost: {total}, Average cost per query: {avg:.3f}")
     

@@ -1,7 +1,6 @@
 import random
-from structures.skiplist import SkipList, Node as SkipNode
-from structures.biased_skiplist import BiasedSkipList, Node as BiasedSkipNode
-from structures.biased_zipzip import ZipZipTree, Node as ZipZipNode
+from structures.BiasedZipZipTree import ZipZipTree, Node as ZipZipNode
+from structures.ThresholdZipZipTree import Thresholded_ZipZipTree, Node as ThresholdZipZipNode
 
 def generate_dataset(n):
     # keys from 0..n-1
@@ -21,16 +20,9 @@ def generate_dataset(n):
 
 
 if __name__ == "__main__":
-    n = 10  # size of dataset
+    n = 10                                                              # size of dataset
     keys, freq_dict = generate_dataset(n)
     
     print("Keys:", keys)
     print("Frequencies:", freq_dict)
     print("Sum of frequencies:", sum(freq_dict.values()))
-    
-    bsl = BiasedSkipList(frequencies=freq_dict, capacity=n)
-    
-    for key in keys:
-        bsl.insert(key)
-    
-    bsl.display()  # Display the skiplist structure
