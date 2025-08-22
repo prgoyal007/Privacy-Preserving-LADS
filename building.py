@@ -6,7 +6,7 @@ from dataset import generate_dataset
 
 def build_structures(n):
     # Generate dataset
-    keys, freqs = generate_dataset(n)
+    keys, freq_dict = generate_dataset(n)
 
     # 1. Standard SkipList
     sl = SkipList()
@@ -14,7 +14,7 @@ def build_structures(n):
         sl.insert(k)
 
     # 2. Biased SkipList
-    bsl = BiasedSkipList(frequencies=freqs, capacity=n)
+    bsl = BiasedSkipList(frequencies=freq_dict, capacity=n)
     for k in keys:
         bsl.insert(k)
 
@@ -22,11 +22,11 @@ def build_structures(n):
     zzt = ZipZipTree(capacity=n)
     for k in keys:
         # Insert k as both key and value, rank is generated on its own
-        zzt.insert(k, k, freqs[k])
+        zzt.insert(k, k, freq_dict[k])
     
     thresholded_zzt = Thresholded_ZipZipTree(capacity=n)
     for k in keys:
         # Insert k as both key and value, rank is generated on its own
-        thresholded_zzt.insert(k, k, freqs[k])
+        thresholded_zzt.insert(k, k, freq_dict[k])
 
-    return sl, bsl, zzt, thresholded_zzt, keys, freqs
+    return sl, bsl, zzt, thresholded_zzt, keys, freq_dict
