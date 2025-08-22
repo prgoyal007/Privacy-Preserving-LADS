@@ -6,15 +6,14 @@ class StaticRSL(DS):
     def __init__(self, ordered_elements, frequencies, p0=0.9, pg=0.368, alpha=2, right_comparison=False):
         DS.__init__(self)
         self.pg = pg
-        self.alpha = alpha  # TODO
-        self.HFactor = 50  # TODO
-        self.p0 = p0  # TODO
+        self.alpha = alpha 
+        self.HFactor = 50  
+        self.p0 = p0  
         self.right_comparison = right_comparison
 
         # Store elements and frequencies
         self.elements = ordered_elements
         self.frequencies = frequencies
-        self.n = len(ordered_elements)
 
         # Build the skip list
         self.first_node, self.last_node, self.height = self.make_skip_list(ordered_elements, frequencies)
@@ -43,15 +42,17 @@ class StaticRSL(DS):
         return fVals
 
     def get_height(self, fi, H):
-        return min(H, np.ceil(H - fi))                                                      # Heights are fixed; no dynamic adjustment
+        # Heights are fixed; no dynamic adjustment
+        return min(H, np.ceil(H - fi))                                                      
 
 
 
 
 
     def make_skip_list(self, ordered_elements, frequencies):
-        k = max(2, self.get_i(self.n**(-1/4)) + 1)  # simplified static calculation
-        H = int(self.HFactor * np.log2(self.n))
+        n = len(ordered_elements)
+        k = max(2, self.get_i(n**(-1/4)) + 1)  # simplified static calculation
+        H = int(self.HFactor * np.log2(n))
 
         hValues = [float('inf')]
         fValues = self.get_fValues(k)
@@ -61,7 +62,7 @@ class StaticRSL(DS):
             hValues.append(self.get_height(fVal, H))
         hValues.append(float('inf'))
 
-        # Normalize so minimum height is zero
+        # Normalize so minimum height = 0
         hMin = min(hValues)
         hValues = [h - hMin for h in hValues]
 
@@ -78,7 +79,7 @@ class StaticRSL(DS):
         n.left = nodes[-1]
         nodes.append(n)
 
-        # Build upper layers
+        # Build upper layers (fixed, once)
         h = 0
         while len(nodes) > 2:
             next_layer = []
@@ -100,10 +101,20 @@ class StaticRSL(DS):
 
 
     def insert(self, key, freq=None):
-        raise NotImplementedError("StaticRSL does not support insertion after initialization.")
-
+        # Static insert: only update element/frequency lists
+        if key not in self.elements:
+            self.elements.append(key)
+            self.elements = sorted(self.elements)
+            idx = self.elements.index(key)
+            if freq is not None:
+                self.frequencies.insert(idx, freq)
+        
     def delete(self, key):
-        raise NotImplementedError("StaticRSL does not support deletion.")
+        # Static delete: only update element/frequency lists
+        if key in self.elements:
+            idx = self.elements.index(key)
+            self.elements.pop(idx)
+            self.frequencies.pop(idx)
 
     # Standard skip list search
     def search(self, key_Value, __splay_cost__=False):
