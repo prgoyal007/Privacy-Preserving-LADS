@@ -20,16 +20,9 @@ def generate_dataset(n):
 
 
 if __name__ == "__main__":
-    n = 10  # size of dataset
+    n = 10                                                              # size of dataset
     keys, freq_dict = generate_dataset(n)
     
     print("Keys:", keys)
     print("Frequencies:", freq_dict)
     print("Sum of frequencies:", sum(freq_dict.values()))
-    
-    bsl = BiasedSkipList(frequencies=freq_dict, capacity=n)
-    
-    for key in keys:
-        bsl.insert(key)
-    
-    bsl.display()  # Display the skiplist structure

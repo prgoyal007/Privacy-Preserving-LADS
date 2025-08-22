@@ -44,12 +44,9 @@ def run_experiment(n=100, num_queries=10000):
 if __name__ == "__main__":
     n = 10
     num_queries = 100
-
     print(f"\n=== Running Experiment: n={n}, num_queries={num_queries} ===\n")
-
     results = run_experiment(n=n, num_queries=num_queries)
 
-    print("")
     for name, (total, avg) in results.items():
         print(f"{name}: Total cost: {total}, Average cost per query: {avg:.3f}")
     
