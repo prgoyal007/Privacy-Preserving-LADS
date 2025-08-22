@@ -2,9 +2,32 @@ import json
 
 from DataGenerator import *
 from structures.DynamicRSL import *
+from structures.StaticRSL import *
+from structures.BiasedZipZipTree import *
+from structures.ThresholdZipZipTree import *
 from structures.Treap import *
 from structures.AVLTree import *
-from structures.StaticRSL import *
+
+"""
+Purpose: 
+- Generate test sequences where requests follow a Zipfian distribution but with adversarially chosen parameters (worst-case scenarios).
+
+How it works:
+- Instead of sampling α randomly, it picks α (and sometimes dataset size) in a way that is maximally stressful to the data structure.
+- For example:
+    - Extreme skew (α → 2): almost all queries target a single element.
+    - Near-uniform skew (α → 0): no caching or optimization works well.
+- This can reveal pathological performance issues that random tests might miss.
+
+Use case:
+- Stress-tests against worst-case workloads.
+- Helps analyze history independence/privacy leaks under “attack-style” access patterns.
+
+Summary:
+- Workload parameters chosen adversarially (worst-case stress).
+- Does the structure break under skew extremes?
+"""
+
 
 def TestDS(ds, ordered_elements, search_elements, path_to_save, true_search=False, __splay_cost__=False,
            __print__=False):
@@ -21,7 +44,6 @@ def TestDS(ds, ordered_elements, search_elements, path_to_save, true_search=Fals
     write_data(costs, path_to_save)
     return costs
 
-
 def write_data(data, path_to_save):
     with open(path_to_save, 'w') as writer:
         json.dump(data, writer)
@@ -30,7 +52,6 @@ def write_data(data, path_to_save):
 def read_data(path):
     with open(path) as reader:
         return json.load(reader)
-
 
 ns = [1000, 2000 ,5000]
 
@@ -113,25 +134,3 @@ for n in ns:
 
             TestDS(avl, key_values, search_elements,
                    "{2}/AVL_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
-
-            print("n: {1}, alpha: {0}, Making RedBlack Tree...".format(alpha, n))
-            redblack = RedBlackTree(key_values)
-
-            TestDS(redblack, key_values, search_elements,
-                   "{2}/RedBlack_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
-
-            print("n: {1}, alpha: {0}, Making Splay Tree...".format(alpha, n))
-            splay = SplayTree(elements=key_values)
-
-            TestDS(splay, key_values, search_elements,
-                   "{2}/Splay_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n),
-                   true_search=True,
-                   __splay_cost__=False)
-
-            print("n: {1}, alpha: {0}, Making Splay Tree+...".format(alpha, n))
-            splayP = SplayTree(elements=key_values)
-
-            TestDS(splayP, key_values, search_elements,
-                   "{2}/SplayP_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n),
-                   true_search=True,
-                   __splay_cost__=True)
