@@ -1,7 +1,6 @@
 import random
-from structures.skiplist import SkipList, Node as SkipNode
-from structures.biased_skiplist import BiasedSkipList, Node as BiasedSkipNode
-from structures.biased_zipzip import ZipZipTree, Node as ZipZipNode
+from structures.BiasedZipZipTree import ZipZipTree, Node as ZipZipNode
+from structures.ThresholdZipZipTree import Thresholded_ZipZipTree, Node as ThresholdZipZipNode
 
 def generate_dataset(n):
     # keys from 0..n-1

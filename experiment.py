@@ -18,26 +18,12 @@ def generate_queries(keys, freq_dict, num_queries=10000):
 
 def run_experiment(n=100, num_queries=10000):
     # Build data structures
-    sl, bsl, zzt, thresholded_zzt, keys, freq_dict = build_structures(n)
+    zzt, thresholded_zzt, keys, freq_dict = build_structures(n)
 
     # Generate queries proportional to frequencies
     queries = generate_queries(keys, freq_dict, num_queries)
 
     results = {}
-
-    # Test Standard SkipList
-    total = 0
-    for q in queries:
-        _, cost = sl.search(q)
-        total += cost
-    results["Standard SkipList"] = (total, total / num_queries)
-
-    # Test Biased SkipList
-    total = 0
-    for q in queries:
-        _, cost = bsl.search(q)
-        total += cost
-    results["Biased SkipList"] = (total, total / num_queries)
 
     # Test ZipZipTree
     total = 0
