@@ -133,6 +133,7 @@ class DynamicRSL(DS):
         # self.actual_insert(key, freq)
         self.fake_insert(key, freq)
 
+    # Updates element/frequency lists and rebuilds the skip list using self.setup()
     def fake_insert(self, key, freq):
         if key not in self.elements:
             self.elements.append(key)
@@ -141,6 +142,7 @@ class DynamicRSL(DS):
             self.frequencies.insert(idx, freq)
             self.setup(self.elements, self.frequencies)
 
+    # Inserts a new key into the existing skip list without full rebuild, adjusts heights of nodes, possibly adds new levels, and updates self.height.
     def actual_insert(self, key, freq):
         if key not in self.elements:
             self.elements.append(key)
@@ -148,7 +150,7 @@ class DynamicRSL(DS):
             idx = self.elements.index(key)
             self.frequencies.insert(idx, freq)
             self.nStar += 1
-            if self.nStar >= self.n:
+            if self.nStar >= self.n:                # DELETE in StaticRSL - This check either rebuilds or tries to splice in a node dynamically.
                 self.n *= self.n
                 # print("<< N got doubled >>")
                 self.first_node, self.last_node, self.height = self.make_skip_list(self.elements, self.frequencies)
@@ -195,7 +197,7 @@ class DynamicRSL(DS):
 
 
 
-
+    # Removes the node from the skip list, updates links, and may shrink the structure if nStar becomes small.
     def delete(self, key):
         if key in self.elements:
             node, c = self.search(key)
