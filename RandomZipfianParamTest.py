@@ -2,10 +2,30 @@ import json
 
 from DataGenerator import *
 from structures.DynamicRSL import *
+from structures.StaticRSL import *
+from structures.BiasedZipZipTree import *
+from structures.ThresholdZipZipTree import *
 from structures.Treap import *
 from structures.AVLTree import *
-from structures.StaticRSL import *
-\
+
+"""
+Purpose: 
+- Generate test sequences where requests (keys/queries) follow a Zipfian distribution with randomly chosen parameters.
+
+How it works:
+- Picks a random skew parameter (the α in Zipf's law).
+- Uses that α to generate request frequencies (some items are very frequent, others rare).
+- Each test run may look different because the skew and distribution vary randomly.
+
+Use case:
+- Simulates real-world uncertainty where workloads may not always follow the same skew.
+- Good for testing average-case robustness.
+
+Summary: 
+- Workload parameters chosen randomly (average-case realism).
+- Does the structure handle typical workloads?
+"""
+
 def TestDS(ds, ordered_elements, search_elements, path_to_save, true_search=False, __splay_cost__=False,
            __print__=False):
     costs = []
@@ -116,25 +136,3 @@ for n in ns:
 
             TestDS(avl, key_values, search_elements,
                    "{2}/AVL_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
-
-            print("n: {1}, alpha: {0}, Making RedBlack Tree...".format(alpha, n))
-            redblack = RedBlackTree(key_values)
-
-            TestDS(redblack, key_values, search_elements,
-                   "{2}/RedBlack_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
-
-            print("n: {1}, alpha: {0}, Making Splay Tree...".format(alpha, n))
-            splay = SplayTree(elements=key_values)
-
-            TestDS(splay, key_values, search_elements,
-                   "{2}/Splay_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n),
-                   true_search=True,
-                   __splay_cost__=False)
-
-            print("n: {1}, alpha: {0}, Making Splay Tree+...".format(alpha, n))
-            splayP = SplayTree(elements=key_values)
-
-            TestDS(splayP, key_values, search_elements,
-                   "{2}/SplayP_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n),
-                   true_search=True,
-                   __splay_cost__=True)
