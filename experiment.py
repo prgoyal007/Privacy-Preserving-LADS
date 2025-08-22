@@ -2,59 +2,69 @@ import random
 from dataset import generate_dataset
 from building import build_structures
 
-
-def generate_queries(keys, freqs, num_queries=10000):
+def generate_queries(keys, freq_dict, num_queries=10000):
     # keys chosen proportional to their frequency
     # Ex. 
     # keys = ["A", "B", "C"]
-    # freqs = {"A": 0.6, "B": 0.3, "C": 0.1}
+    # freq_dict = {"A": 0.6, "B": 0.3, "C": 0.1}
     # generates A 60% of the time, B 30%, C 10% []
     # ["A", "A", "B", "A", "C", "A", "B", "A", "A", "B"]
     queries = random.choices(
         population=keys,
-        weights=[freqs[k] for k in keys],
+        weights=[freq_dict[k] for k in keys],
         k=num_queries
     )
     return queries
 
-
 def run_experiment(n=100, num_queries=10000):
-    sl, bsl, zzt, thresholded_zzt, keys, freqs = build_structures(n)
-    queries = generate_queries(keys, freqs, num_queries)
+    # Build data structures
+    sl, bsl, zzt, thresholded_zzt, keys, freq_dict = build_structures(n)
+
+    # Generate queries proportional to frequencies
+    queries = generate_queries(keys, freq_dict, num_queries)
 
     results = {}
 
-    # SkipList
+    # Test Standard SkipList
     total = 0
     for q in queries:
         _, cost = sl.search(q)
         total += cost
-    results["SkipList\n"] = (total, total/num_queries)
+    results["Standard SkipList"] = (total, total / num_queries)
 
-    # Biased SkipList
+    # Test Biased SkipList
     total = 0
     for q in queries:
         _, cost = bsl.search(q)
         total += cost
-    results["BiasedSkipList\n"] = (total, total/num_queries)
+    results["Biased SkipList"] = (total, total / num_queries)
 
-    # ZipZipTree
+    # Test ZipZipTree
     total = 0
     for q in queries:
-        val, cost = zzt.find_with_cost(q)   # needs a find_with_cost method
+        val, cost = zzt.find_with_cost(q)                                   # needs a find_with_cost method
         total += cost
-    results["ZipZipTree\n"] = (total, total/num_queries)
+    results["ZipZipTree"] = (total, total / num_queries)
 
-    # Thresholded ZipZipTree
+    # Test Thresholded ZipZipTree
     total = 0
     for q in queries:
         val, cost = thresholded_zzt.find_with_cost(q)
         total += cost
-    results["ThresholdedZipZipTree\n"] = (total, total/num_queries)
+    results["Thresholded ZipZipTree"] = (total, total / num_queries)
+
     return results
 
-
 if __name__ == "__main__":
-    results = run_experiment(n=10, num_queries=100)
+    n = 10
+    num_queries = 100
+
+    print(f"\n=== Running Experiment: n={n}, num_queries={num_queries} ===\n")
+
+    results = run_experiment(n=n, num_queries=num_queries)
+
+    print("")
     for name, (total, avg) in results.items():
-        print(f"{name}: total cost={total}, avg cost={avg:.3f}")
+        print(f"{name}: Total cost: {total}, Average cost per query: {avg:.3f}")
+    
+    print("\n=== Experiment Complete ===\n")
