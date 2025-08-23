@@ -20,11 +20,9 @@ Summary:
 """
 
 
-
 import json
 
 from DataGenerator import *
-from structures.DynamicRSL import *
 from structures.StaticRSL import *
 from structures.BiasedZipZipTree import *
 from structures.ThresholdZipZipTree import *
@@ -70,7 +68,7 @@ __path_dir__ = "StandardZipfianTest"
 
 for n in ns:
     for alpha in alphas:
-        for error in errors:  # only 0
+        for error in errors:                                                                    # only 0
             print(f"n: {n}, alpha: {alpha}, Standard Zipfian (δ={error})")
 
             if __generate_data__:
@@ -78,7 +76,7 @@ for n in ns:
                     n, search_size, alpha, __random_order__=False
                 )
 
-                # true Zipf frequencies (no adversary corruption)
+                # true Zipfian frequencies (no adversary corruption)
                 frequencies = zipfi_adversary(n, ranks, error, alpha)
 
                 data = {
@@ -100,18 +98,26 @@ for n in ns:
             # --- Run on each DS ---
             print(f"n: {n}, alpha: {alpha}, Running DS...")
 
-            p0 = 0.05
-            rsl = DynamicRSL(key_values.copy(), frequencies.copy(), p0=p0, right_comparison=False)
-            TestDS(rsl, key_values, search_elements, f"{__path_dir__}/RSL_n{n}_a{alpha}.json")
+            # Static RSL
+            static_rsl = StaticRSL(key_values.copy(), frequencies.copy())
+            TestDS(static_rsl, key_values, search_elements, f"{__path_dir__}/StaticRSL_n{n}_a{alpha}.json")
 
-            rsl = DynamicRSL(key_values.copy(), frequencies.copy(), p0=p0, right_comparison=True)
-            TestDS(rsl, key_values, search_elements, f"{__path_dir__}/RSLP_n{n}_a{alpha}.json")
+            # Biased ZipZip Tree
+            bzzt = ZipZipTree(n)
+            for key, freq in zip(key_values, frequencies):
+                bzzt.insert(key, key, freq)
+            TestDS(bzzt, key_values, search_elements, f"{__path_dir__}/BiasedZipZipTree_n{n}_a{alpha}.json")
 
-            balanced_tree = BinaryTree(key_values, pessimistic=True)
-            TestDS(balanced_tree, key_values, search_elements, f"{__path_dir__}/BalBST_n{n}_a{alpha}.json")
+            # Threshold Biased ZipZip Tree
+            tzzt = Thresholded_ZipZipTree(n)
+            for key, freq in zip(key_values, frequencies):
+                tzzt.insert(key, key, freq)
+            TestDS(tzzt, key_values, search_elements, f"{__path_dir__}/ThresholdZipZipTree_n{n}_a{alpha}.json")
 
+            # Treap
             treap = Treap(key_values, frequencies=frequencies)
             TestDS(treap, key_values, search_elements, f"{__path_dir__}/Treap_n{n}_a{alpha}.json")
 
+            # AVL Tree
             avl = AVLTree(key_values)
             TestDS(avl, key_values, search_elements, f"{__path_dir__}/AVL_n{n}_a{alpha}.json")
