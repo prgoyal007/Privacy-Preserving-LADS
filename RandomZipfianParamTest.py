@@ -59,7 +59,7 @@ __generate_data__ = True
 __test_samples__ = True
 
 trials = 10
-__path_dir__ = "RandomZipfianTest"
+__path_dir__ = "results/RandomZipfianTest"
 
 for n in ns:
     for alpha in alphas:
@@ -95,24 +95,23 @@ for n in ns:
                 frequencies = data['freq']
                 search_frequencies = data['search_freq']
 
-            print("n: {1}, alpha: {0}, Making StaticRSL...".format(alpha, n))
 
-            # Static RSL
+            # Static RSL            
+            print(f"n: {n}, alpha: {alpha}, Making Static RSL...")
             static_rsl = StaticRSL(key_values.copy(), frequencies.copy())
             TestDS(static_rsl, key_values, search_elements,
                    "{2}/StaticRSL_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
 
             # Biased ZipZip Tree
-            print("n: {1}, alpha: {0}, Making Biased ZipZip Tree...".format(alpha, n))
+            print(f"n: {n}, alpha: {alpha}, Making Biased ZipZip Tree...")
             bzzt = ZipZipTree(n)
             for key, freq in zip(key_values, frequencies):
                 bzzt.insert(key, key, freq)
             TestDS(bzzt, key_values, search_elements,
                    "{2}/BiasedZipZipTree_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
 
-
             # Threshold Biased ZipZip Tree
-            print("n: {1}, alpha: {0}, Making Threshold ZipZip Tree...".format(alpha, n))
+            print(f"n: {n}, alpha: {alpha}, Making Threshold ZipZip Tree...")
             tzzt = Thresholded_ZipZipTree(n)
             for key, freq in zip(key_values, frequencies):
                 tzzt.insert(key, key, freq)
@@ -120,13 +119,13 @@ for n in ns:
                    "{2}/ThresholdZipZipTree_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
 
             # Treap
-            print("n: {1}, alpha: {0}, Making Treap...".format(alpha, n))
+            print(f"n: {n}, alpha: {alpha}, Making Treap...")
             treap = Treap(key_values, frequencies=frequencies)
             TestDS(treap, key_values, search_elements,
                    "{2}/Treap_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
 
             # AVL Tree
-            print("n: {1}, alpha: {0}, Making AVL Tree...".format(alpha, n))
+            print(f"n: {n}, alpha: {alpha}, Making AVL Tree...")
             avl = AVLTree(key_values)
             TestDS(avl, key_values, search_elements,
                    "{2}/AVL_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
