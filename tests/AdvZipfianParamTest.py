@@ -20,7 +20,7 @@ Summary:
 
 import json
 
-from DataGenerator import *
+from tests.DataGenerator import *
 from structures.StaticRSL import *
 from structures.BiasedZipZipTree import *
 from structures.ThresholdZipZipTree import *
