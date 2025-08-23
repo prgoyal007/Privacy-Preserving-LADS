@@ -19,7 +19,6 @@ Summary:
 import json
 
 from DataGenerator import *
-from structures.DynamicRSL import *
 from structures.StaticRSL import *
 from structures.BiasedZipZipTree import *
 from structures.ThresholdZipZipTree import *
@@ -41,17 +40,15 @@ def TestDS(ds, ordered_elements, search_elements, path_to_save, true_search=Fals
     write_data(costs, path_to_save)
     return costs
 
-
 def write_data(data, path_to_save):
     with open(path_to_save, 'w') as writer:
         json.dump(data, writer)
-
 
 def read_data(path):
     with open(path) as reader:
         return json.load(reader)
 
-# Parameters for Robust Zipfian Test + Randomness
+# Parameters for Random Zipfian Test
 ns = [1000, 2000 ,5000]
 alphas = [1, 1.25, 1.5, 2, 3]
 errors = [0, 0.01,  0.45, 0.9]
@@ -63,6 +60,7 @@ __test_samples__ = True
 
 trials = 10
 __path_dir__ = "RandomZipfianTest"
+
 for n in ns:
     for alpha in alphas:
         for idx, error in enumerate(errors):
@@ -81,16 +79,14 @@ for n in ns:
 
                 frequencies = zipfi_adversary(n, ranks, error, alpha)
 
-                data = {}
-                data['keys'] = key_values
-                data['search'] = search_elements
-                data['freq'] = frequencies
-                data['search_freq'] = search_frequencies
-                data['ranks'] = ranks
+                data = {
+                    'keys': key_values,
+                    'search': search_elements,
+                    'freq': frequencies,
+                    'search_freq': search_frequencies,
+                    'ranks': ranks
+                }
                 write_data(data, "{2}/data_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
-
-
-
 
             else:
                 data = read_data("{2}/data_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
@@ -99,38 +95,39 @@ for n in ns:
                 frequencies = data['freq']
                 search_frequencies = data['search_freq']
 
-            # impacted by frequencies
-            print("n: {1}, alpha: {0}, Making RSL...".format(alpha, n))
-            p0 = min(0.9, max(search_frequencies) * 0.9)
-            rsl = DynamicRSL(key_values.copy(), frequencies.copy(), p0=p0, right_comparison=False)
+            print("n: {1}, alpha: {0}, Making StaticRSL...".format(alpha, n))
 
-            TestDS(rsl, key_values, search_elements,
-                   "{2}/RSL_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
+            # Static RSL
+            static_rsl = StaticRSL(key_values.copy(), frequencies.copy())
+            TestDS(static_rsl, key_values, search_elements,
+                   "{2}/StaticRSL_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
 
-            print("n: {1}, alpha: {0}, Making RSL...".format(alpha, n))
-            p0 = min(0.9, max(search_frequencies) * 0.9)
-            rsl = DynamicRSL(key_values.copy(), frequencies.copy(), p0=p0, right_comparison=True)
-
-            TestDS(rsl, key_values, search_elements,
-                   "{2}/RSLP_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
-
-            print("n: {1}, alpha: {0}, Making balanced BST...".format(alpha, n))
-            balanced_tree = BinaryTree(key_values, pessimistic=True)
-
-            TestDS(balanced_tree, key_values, search_elements,
-                   "{2}/BalBST_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
+            # Biased ZipZip Tree
+            print("n: {1}, alpha: {0}, Making Biased ZipZip Tree...".format(alpha, n))
+            bzzt = ZipZipTree(n)
+            for key, freq in zip(key_values, frequencies):
+                bzzt.insert(key, key, freq)
+            TestDS(bzzt, key_values, search_elements,
+                   "{2}/BiasedZipZipTree_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
 
 
-            # impacted by frequencies
+            # Threshold Biased ZipZip Tree
+            print("n: {1}, alpha: {0}, Making Threshold ZipZip Tree...".format(alpha, n))
+            tzzt = Thresholded_ZipZipTree(n)
+            for key, freq in zip(key_values, frequencies):
+                tzzt.insert(key, key, freq)
+            TestDS(tzzt, key_values, search_elements,
+                   "{2}/ThresholdZipZipTree_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
+
+            # Treap
             print("n: {1}, alpha: {0}, Making Treap...".format(alpha, n))
             treap = Treap(key_values, frequencies=frequencies)
-
             TestDS(treap, key_values, search_elements,
                    "{2}/Treap_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
 
-
+            # AVL Tree
             print("n: {1}, alpha: {0}, Making AVL Tree...".format(alpha, n))
             avl = AVLTree(key_values)
-
             TestDS(avl, key_values, search_elements,
                    "{2}/AVL_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
+            
