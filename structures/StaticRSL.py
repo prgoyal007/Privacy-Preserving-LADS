@@ -8,7 +8,7 @@ class StaticRSL(DS):
         self.pg = pg
         self.alpha = alpha 
         self.HFactor = 50  
-        self.p0 = p0  
+        self.p0 = p0                                           # Set to high frequency = 0.9
         self.right_comparison = right_comparison
 
         # Store elements and frequencies
