@@ -1,6 +1,6 @@
 import numpy as np
-from .BTNode import *
-from .DS import *
+from structures.BTNode import *
+from structures.DS import *
 
 
 class BinaryTree(DS):
