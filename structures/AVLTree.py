@@ -1,7 +1,7 @@
 import sys
 
-from BTNode import *
-from DS import *
+from structures.BTNode import *
+from structures.DS import *
 
 
 class AVLTree(DS):
