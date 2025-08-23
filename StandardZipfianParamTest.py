@@ -64,7 +64,7 @@ __generate_data__ = True
 __test_samples__ = True
 
 trials = 10
-__path_dir__ = "StandardZipfianTest"
+__path_dir__ = "results/StandardZipfianTest"
 
 for n in ns:
     for alpha in alphas:
@@ -95,29 +95,31 @@ for n in ns:
                 frequencies = data["freq"]
                 search_frequencies = data["search_freq"]
 
-            # --- Run on each DS ---
-            print(f"n: {n}, alpha: {alpha}, Running DS...")
-
             # Static RSL
+            print(f"n: {n}, alpha: {alpha}, Making Static RSL...")
             static_rsl = StaticRSL(key_values.copy(), frequencies.copy())
             TestDS(static_rsl, key_values, search_elements, f"{__path_dir__}/StaticRSL_n{n}_a{alpha}.json")
 
             # Biased ZipZip Tree
+            print(f"n: {n}, alpha: {alpha}, Making Biased ZipZip Tree...")
             bzzt = ZipZipTree(n)
             for key, freq in zip(key_values, frequencies):
                 bzzt.insert(key, key, freq)
             TestDS(bzzt, key_values, search_elements, f"{__path_dir__}/BiasedZipZipTree_n{n}_a{alpha}.json")
 
             # Threshold Biased ZipZip Tree
+            print(f"n: {n}, alpha: {alpha}, Making Threshold ZipZip Tree...")
             tzzt = Thresholded_ZipZipTree(n)
             for key, freq in zip(key_values, frequencies):
                 tzzt.insert(key, key, freq)
             TestDS(tzzt, key_values, search_elements, f"{__path_dir__}/ThresholdZipZipTree_n{n}_a{alpha}.json")
 
             # Treap
+            print(f"n: {n}, alpha: {alpha}, Making Treap...")
             treap = Treap(key_values, frequencies=frequencies)
             TestDS(treap, key_values, search_elements, f"{__path_dir__}/Treap_n{n}_a{alpha}.json")
 
             # AVL Tree
+            print(f"n: {n}, alpha: {alpha}, Making AVL Tree...")
             avl = AVLTree(key_values)
             TestDS(avl, key_values, search_elements, f"{__path_dir__}/AVL_n{n}_a{alpha}.json")
