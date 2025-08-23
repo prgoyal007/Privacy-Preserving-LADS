@@ -1,5 +1,5 @@
-from BinaryTree import *
-from SkipListNode import *
+from .BinaryTree import *
+from .SkipListNode import *
 from numpy import *
 
 class StaticRSL(DS):
