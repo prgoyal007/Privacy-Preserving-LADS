@@ -18,7 +18,7 @@ class Treap(DS):
     Notes: 
     - Initializes the Treap and generates the initial tree.
     """
-    def __init__(self, elements, frequencies, opt=True, log_priority=False):
+    def __init__(self, elements, frequencies, opt=True, log_priority=True):
         DS.__init__(self)
         self.elements = elements
         self.frequencies = frequencies
