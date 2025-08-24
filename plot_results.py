@@ -2,7 +2,7 @@ import json, os, glob, re
 import numpy as np
 import matplotlib.pyplot as plt
 
-ds_names = ["StaticRSL", "BiasedZipZipTree", "ThresholdZipZipTree", "Treap", "AVLTree"]
+ds_names = ["StaticRSL", "BiasedZipZipTree", "ThresholdZipZipTree", "Treap", "AVL"]
 n_values = [1000, 2000, 5000]
 
 """
