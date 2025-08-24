@@ -29,6 +29,33 @@ from structures.ThresholdZipZipTree import *
 from structures.Treap import *
 from structures.AVLTree import *
 
+
+
+"""
+Run a test on a given data structure using either precomputed costs or actual searches.
+
+Parameters:
+- ds : DS instance
+    The data structure to test (e.g., StaticRSL, Treap, AVLTree, ZipZipTree).
+- ordered_elements : list
+    The elements in the data structure.
+- search_elements : list
+    The elements to search for during the test.
+- path_to_save : str
+    File path to save the results as JSON.
+- true_search : bool (default=False)
+    If True, perform real searches on the data structure; if False, use precomputed costs.
+- __splay_cost__ : bool (default=False)
+    For splayable structures, whether to count splay cost (currently unused for static DS).
+- __print__ : bool (default=False)
+    If True, print debug output.
+
+Returns:
+- list : search costs for each element in search_elements.
+
+Side effects:
+- Writes search costs to path_to_save as JSON.
+"""
 def TestDS(ds, ordered_elements, search_elements, path_to_save, true_search=False, __splay_cost__=False,
            __print__=False):
     costs = []
@@ -45,10 +72,38 @@ def TestDS(ds, ordered_elements, search_elements, path_to_save, true_search=Fals
     return costs
 
 
+
+"""
+Save a Python object as JSON to a file.
+
+Parameters:
+- data : object
+    Data to serialize (typically a list of search costs or dictionary).
+- path_to_save : str
+    File path to save the JSON.
+
+Side effects:
+- Creates or overwrites the specified file with JSON-serialized data.
+"""
 def write_data(data, path_to_save):
     with open(path_to_save, 'w') as writer:
         json.dump(data, writer)
 
+
+
+"""
+Read a JSON file and return its contents as a Python object.
+
+Parameters:
+- path : str
+    Path to the JSON file.
+
+Returns:
+- object : the deserialized JSON object (list or dict)
+
+Side effects:
+- None
+"""
 def read_data(path):
     with open(path) as reader:
         return json.load(reader)
@@ -66,6 +121,26 @@ __test_samples__ = True
 trials = 10
 __path_dir__ = "results/StandardZipfianTest"
 
+
+"""
+Run the Standard Zipfian Parameter Test over multiple data structures.
+
+Procedure:
+- For each combination of n (size) and alpha (Zipfian parameter):
+    1. Generate or read key values, search elements, and frequencies.
+    2. Normalize frequencies and prepare data.
+    3. Build each data structure:
+        - Static RSL
+        - Biased ZipZip Tree
+        - Threshold ZipZip Tree
+        - Treap
+        - AVL Tree
+    4. Run TestDS for each structure and save results as JSON.
+
+Side effects:
+- Generates JSON files in the results/StandardZipfianTest directory.
+- Prints progress and status messages to the console.
+"""
 for n in ns:
     for alpha in alphas:
         for error in errors:                                                                    # only 0
