@@ -149,7 +149,7 @@ Side effects:
 for n in ns:
     for alpha in alphas:
         for idx, error in enumerate(errors):
-            print("n: {2}, alpha: {1}, Evaluating error: {0}".format(error, alpha, n))
+            print(f"n: {n}, alpha: {alpha}, Adversary Zipfian (δ={error})")
 
             if __generate_data__:
                 if error == 0:
