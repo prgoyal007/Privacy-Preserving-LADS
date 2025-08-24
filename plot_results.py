@@ -5,8 +5,22 @@ import matplotlib.pyplot as plt
 ds_names = ["StaticRSL", "BiasedZipZipTree", "ThresholdZipZipTree", "Treap", "AVL"]
 n_values = [1000, 2000, 5000]
 
+
 """
-Detect all avaliable error values for a given dataset and n.
+Detect all available adversarial error values for a given dataset configuration.
+
+Parameters:
+- path_dir : str
+    Directory where JSON result files are stored.
+- ds : str
+    Data structure name (e.g., "StaticRSL", "Treap").
+- n : int
+    Problem size (number of elements).
+- alpha : float
+    Zipfian parameter.
+
+Returns:
+- list[float] : sorted list of error values (as fractions, e.g., 0.0, 0.45, 0.9)that were found in the filenames.
 """
 def detect_error_values(path_dir, ds, n, alpha):
     pattern = f"{ds}_n{n}_e*_a{alpha}.json"
@@ -21,10 +35,29 @@ def detect_error_values(path_dir, ds, n, alpha):
     return sorted(errors)
 
 
+
 """
-Load all JSON files and compute average search cost per DS per n.
-Returns nested dictionary: avg_costs[alpha][error][ds] = list of averages for n_values
-error_values=None for tests without error (Standard Zipfian Test)
+Load average search costs for multiple datasets across DS, n, and error values.
+
+The function scans result JSON files, loads recorded search costs, and computes
+per-query averages. Results are organized in a nested dictionary.
+
+Parameters:
+- path_dir : str
+    Directory where JSON result files are stored.
+- ds_names : list[str]
+    Names of data structures to include.
+- n_values : list[int]
+    List of dataset sizes (n values) to load.
+- alpha_values : list[float] (default=[1])
+    Zipf parameters to evaluate.
+- error_values : list[float] or None (default=None)
+    Error (δ) values to evaluate. If None, values are automatically detected
+    from filenames.
+
+Returns:
+- dict : nested dictionary of average costs
+    Structure: avg_costs[alpha][error][ds] = list of averages for n_values
 """
 def load_avg_costs(path_dir, ds_names, n_values, alpha_values=[1], error_values=None):
     avg_costs = {}
@@ -63,6 +96,24 @@ def load_avg_costs(path_dir, ds_names, n_values, alpha_values=[1], error_values=
 
 
 
+"""
+Plot a grouped bar chart comparing average search costs across data structures.
+
+Parameters:
+- avg_costs_per_n : dict
+    Dictionary mapping DS name → list of average costs (aligned with n_values).
+- n_values : list[int]
+    Dataset sizes (n values) represented in the grouped bars.
+- title : str
+    Title of the plot.
+- ylabel : str
+    Y-axis label (e.g., "Avg. # of Comparisons").
+- annotate_threshold : float or None (default=None)
+    If set, annotate bars that exceed this threshold with their numeric value.
+
+Side effects:
+- Displays a matplotlib grouped bar chart.
+"""
 def plot_grouped_bar(avg_costs_per_n, n_values, title, ylabel, annotate_threshold=None):
     ds_names = list(avg_costs_per_n.keys())
     x = np.arange(len(ds_names))
@@ -88,6 +139,27 @@ def plot_grouped_bar(avg_costs_per_n, n_values, title, ylabel, annotate_threshol
     plt.show()
 
 
+
+"""
+Plot a bar chart showing the effect of varying the Zipf parameter (α).
+
+Parameters:
+- avg_costs_per_alpha : dict
+    Nested dictionary mapping alpha → { ds : avg_cost } for each DS.
+- alpha_values : list[float]
+    Zipf parameters (x-axis values).
+- ds_names : list[str]
+    Names of data structures to include as bar groups.
+- title : str
+    Title of the plot.
+- ylabel : str
+    Y-axis label.
+- annotate_threshold : float or None (default=None)
+    If set, annotate bars that exceed this threshold with their numeric value.
+
+Side effects:
+- Displays a matplotlib grouped bar chart.
+"""
 def plot_zipf_parameter_sweep(avg_costs_per_alpha, alpha_values, ds_names, title, ylabel, annotate_threshold=None):
     x = np.arange(len(alpha_values))
     width = 0.15
@@ -111,6 +183,7 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha, alpha_values, ds_names, title
     plt.legend()
     plt.tight_layout()
     plt.show()
+
 
 if __name__ == "__main__":
     
