@@ -59,13 +59,19 @@ Side effects:
 def TestDS(ds, ordered_elements, search_elements, path_to_save, true_search=False, __splay_cost__=False,
            __print__=False):
     costs = []
-    if not true_search:
+
+    if not true_search and hasattr(ds, "get_all_costs"):
+        # Use precomputed costs if available
         all_costs_optimistic = ds.get_all_costs(ordered_elements)
         for key in search_elements:
             costs.append(all_costs_optimistic[key])
     else:
+        # Fall back to running per-query searches
         for key in search_elements:
-            n, c = ds.search(key, __splay_cost__=__splay_cost__)
+            if hasattr(ds, "find_with_cost"):
+                _, c = ds.find_with_cost(key)
+            else:
+                _, c = ds.search(key, __splay_cost__=__splay_cost__)
             costs.append(c)
 
     write_data(costs, path_to_save)
