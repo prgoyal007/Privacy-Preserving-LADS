@@ -3,9 +3,19 @@ import sys
 from structures.BTNode import *
 from structures.DS import *
 
-
 class AVLTree(DS):
 
+
+
+    """
+    Initialize an AVL Tree.
+
+    Parameters:
+    - elements : optional list of initial values to insert
+
+    Notes: 
+    - Initializes the tree as empty, then inserts elements if provided.
+    """
     def __init__(self, elements=[]):
         DS.__init__(self)
         self.root = None
@@ -14,6 +24,20 @@ class AVLTree(DS):
             for v in elements:
                 self.insert(v, None)
 
+
+
+    """
+    Search for a given key in the AVL tree.
+
+    Parameters:
+    - key_Value : the key to search for
+    - __splay_cost__ : optional flag for splay cost tracking (not used)
+
+    Returns:
+    - tuple (node, cost) where
+        - node = BTNode containing the key, or None if not found
+        - cost = number of comparisons performed
+    """
     def search(self, key_Value, __splay_cost__=False):
         node = self.root
         cost = 1
@@ -34,6 +58,18 @@ class AVLTree(DS):
                 cost += 1
         return node, cost
 
+
+
+    """
+    Insert a key into the AVL tree.
+
+    Parameters:
+    - key : the key to insert
+    - freq : frequency value (currently not used in AVL)
+
+    Returns:
+    - node : BTNode representing the inserted key
+    """
     def insert(self, key, freq):
         if key not in self.elements:
             self.elements.append(key)
@@ -47,7 +83,19 @@ class AVLTree(DS):
         self.root = node
         return node
 
-    # Function to insert a node
+
+
+    """
+    Recursive helper function for insert: 
+    - insert key starting from root and balance tree.
+
+    Parameters:
+    - root : root node of the subtree
+    - key : value to insert
+
+    Returns:
+    - new root of the balanced subtree
+    """
     def __insert_node(self, root, key):
 
         # Find the correct location and insert the node
@@ -79,6 +127,16 @@ class AVLTree(DS):
 
         return root
 
+
+
+    """
+    Delete a key from the AVL tree.
+
+    Parameters:
+    - key : value to remove
+
+    Updates tree and maintains AVL balance.
+    """
     def delete(self, key):
         if key in self.elements:
             self.elements.remove(key)
@@ -89,7 +147,19 @@ class AVLTree(DS):
         #     writer.write(log + "\n")
         self.root = self.__delete_node(self.root, key)
 
-    # Function to delete a node
+
+
+    """
+    Recursive helper function for delete: 
+    - remove key starting from root and balance tree.
+
+    Parameters:
+    - root : root node of the subtree
+    - key : value to remove
+
+    Returns:
+    - new root of the balanced subtree
+    """
     def __delete_node(self, root, key):
 
         # Find the node to be deleted and remove it
@@ -139,7 +209,17 @@ class AVLTree(DS):
                 return self.leftRotate(root)
         return root
 
-    # Function to perform left rotation
+
+
+    """
+    Perform left rotation on node z.
+
+    Parameters:
+    - z : root node of the rotation
+
+    Returns:
+    - new root node y after rotation
+    """
     def leftRotate(self, z):
         y = z.right
         T2 = y.left
@@ -151,7 +231,17 @@ class AVLTree(DS):
                            self.getHeight(y.right))
         return y
 
-    # Function to perform right rotation
+
+
+    """
+    Perform right rotation on node z.
+
+    Parameters:
+    - z : root node of the rotation
+
+    Returns:
+    - new root node y after rotation
+    """
     def rightRotate(self, z):
         y = z.left
         T3 = y.right
@@ -163,23 +253,64 @@ class AVLTree(DS):
                            self.getHeight(y.right))
         return y
 
-    # Get the height of the node
+
+
+    """
+    Get the height of a node.
+
+    Parameters:
+    - root : node to measure
+
+    Returns:
+    - int : height of the node, 0 if None
+    """
     def getHeight(self, root):
         if not root:
             return 0
         return root.height
 
-    # Get balance factore of the node
+
+
+    """
+    Calculate balance factor of a node.
+
+    Parameters:
+    - root : node to check
+
+    Returns:
+    - int : balance factor = height(left) - height(right)
+    """
     def getBalance(self, root):
         if not root:
             return 0
         return self.getHeight(root.left) - self.getHeight(root.right)
 
+
+
+    """
+    Find the node with minimum value in a subtree.
+
+    Parameters:
+    - root : root node of subtree
+
+    Returns:
+    - node : node containing minimum value
+    """
     def getMinValueNode(self, root):
         if root is None or root.left is None:
             return root
         return self.getMinValueNode(root.left)
 
+
+
+    """
+    Perform preorder traversal of the tree.
+
+    Parameters:
+    - root : starting node of traversal
+
+    Prints node values in preorder.
+    """
     def preOrder(self, root):
         if not root:
             return
@@ -187,7 +318,16 @@ class AVLTree(DS):
         self.preOrder(root.left)
         self.preOrder(root.right)
 
-    # Print the tree
+
+
+    """
+    Helper function to visually print the tree.
+
+    Parameters:
+    - currPtr : current node
+    - indent : string used for indentation
+    - last : boolean indicating if current node is last child
+    """
     def printHelper(self, currPtr, indent, last):
         if currPtr != None:
             sys.stdout.write(indent)
