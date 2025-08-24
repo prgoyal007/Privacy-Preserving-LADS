@@ -11,6 +11,13 @@ tests/__init__.py
 structures/__init__.py
 ```
 This allows Python to recognize them as modules and handle imports correctly. 
+3. Create the results directory structure from project root directory (required for tests to run correctly):
+```bash
+mkdir -p results/StandardZipfianTest
+mkdir -p results/RandomZipfianTest
+mkdir -p results/AdvZipfianTest
+```
+These directories will be ignored by Git (as specified in `.gitignore`) because the test scripts save data there. The tests will fail if these directories do not exist. 
 
 ## Running Tests
 All test scripts are located in the `tests/` directory. To run a test:
