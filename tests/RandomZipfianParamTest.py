@@ -30,6 +30,10 @@ from structures.AVLTree import *
 """
 Run a test on a given data structure using either precomputed costs or actual searches.
 
+The function first attempts to use precomputed costs via ds.get_all_costs() if available and 
+true_search is False. Otherwise, it performs per-query searches, using ds.find_with_cost() 
+when available, or falling back to ds.search().
+
 Parameters:
 - ds : DS instance
     The data structure to test (e.g., StaticRSL, Treap, AVLTree, ZipZipTree).
