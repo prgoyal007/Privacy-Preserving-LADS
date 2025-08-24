@@ -1,6 +1,7 @@
+import numpy as np
+import builtins
 from structures.BinaryTree import *
 from structures.SkipListNode import *
-from numpy import *
 
 class StaticRSL(DS):
     
@@ -149,13 +150,14 @@ class StaticRSL(DS):
     """
     def make_skip_list(self, ordered_elements, frequencies):
         n = len(ordered_elements)
-        k = max(2, self.get_i(n**(-1/4)) + 1)  # simplified static calculation
+        k = builtins.max(2, self.get_i(n**(-1/4)) + 1)                   # simplified static calculation
         H = int(self.HFactor * np.log2(n))
 
         hValues = [float('inf')]
         fValues = self.get_fValues(k)
         for freq in frequencies:
             i = self.get_i(freq)
+            i = min(self.get_i(freq), len(fValues)-1)
             fVal = fValues[i]
             hValues.append(self.get_height(fVal, H))
         hValues.append(float('inf'))
