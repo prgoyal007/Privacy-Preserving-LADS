@@ -89,17 +89,17 @@ if __name__ == "__main__":
     # α=1, δ=0.9 
     path_adv = "results/AdvZipfianTest"
     avg_adv = load_avg_costs(path_adv, ds_names, n_values, alpha_values=[1], error_values=[0.9])
-    plot_grouped_bar(avg_adv[1][0], n_values, "Adversarial Zipfian Test (δ=0.9, α=1)", "Average Search Cost", annotate_threshold=25)
+    plot_grouped_bar(avg_adv[1][0.9], n_values, "Adversarial Zipfian Test (δ=0.9, α=1)", "Average Search Cost", annotate_threshold=25)
 
     # Random Zipfian Test
     # α=1, δ=0.9
     path_adv = "results/RandomZipfianTest"
     avg_adv = load_avg_costs(path_adv, ds_names, n_values, alpha_values=[1], error_values=[0.9])
-    plot_grouped_bar(avg_adv[1][0], n_values, "Random Zipfian Test (δ=0.9, α=1)", "Average Search Cost", annotate_threshold=25)
+    plot_grouped_bar(avg_adv[1][0.9], n_values, "Random Zipfian Test (δ=0.9, α=1)", "Average Search Cost", annotate_threshold=25)
 
     # Zipf Parameter Sweep (α varies)
     # Use AdversarialTest for α sweep with n=2000, δ=0.9
     alpha_sweep = [1, 1.25, 1.5, 2, 3]
     avg_alpha = load_avg_costs(path_adv, ds_names, n_values=[2000], alpha_values=alpha_sweep, error_values=[0.9])
-    avg_alpha_flat = {alpha: {ds: avg_alpha[alpha][0][ds] for ds in ds_names} for alpha in alpha_sweep}
+    avg_alpha_flat = {alpha: {ds: avg_alpha[alpha][0.9][ds][0] for ds in ds_names} for alpha in alpha_sweep}
     plot_zipf_parameter_sweep(avg_alpha_flat, alpha_sweep, ds_names, "Impact of Zipf Parameter α on DS Performance", "Average Search Cost", annotate_threshold=25)
