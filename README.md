@@ -4,7 +4,11 @@ This repository contains data structures and test scripts for experiments on his
 
 ## Setup
 1. Make sure Python 3.10+ is installed
-2. Add `__init__.py` files (can be empty) to both subdirectories to mark them as packages:
+2. Install required Python packages from project root directory:
+```bash
+pip install numpy nltk matplotlib
+```
+3. Add `__init__.py` files (can be empty) to both subdirectories to mark them as packages:
 
 ```bash
 tests/__init__.py
@@ -12,7 +16,7 @@ structures/__init__.py
 ```
 This allows Python to recognize them as modules and handle imports correctly. 
 
-3. Create the results directory structure from project root directory (required for tests to run correctly):
+4. Create the results directory structure from project root directory (required for tests to run correctly):
 ```bash
 mkdir -p results/StandardZipfianTest
 mkdir -p results/RandomZipfianTest
