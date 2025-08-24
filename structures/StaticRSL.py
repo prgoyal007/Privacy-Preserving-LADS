@@ -3,6 +3,30 @@ from structures.SkipListNode import *
 from numpy import *
 
 class StaticRSL(DS):
+    
+    
+    
+    """
+    Initialize the StaticRSL skip list with a predetermined static structure based on
+    element ordering and frequencies.
+
+    Parameters:
+    - ordered_elements : list
+        Elements in sorted order to be inserted into the skip list.
+    - frequencies : list
+        Access frequencies corresponding to each element.
+    - p0 : float (default=0.9)
+        Base probability used for determining minimum probability for levels.
+    - pg : float (default=0.368)
+        Geometric probability for delta calculations.
+    - alpha : float (default=2)
+        Scaling factor for delta calculations.
+    - right_comparison : bool (default=False)
+        Whether to count right comparisons during search.
+
+    Side effects:
+    - Sets self.first_node, self.last_node, and self.height via make_skip_list().
+    """
     def __init__(self, ordered_elements, frequencies, p0=0.9, pg=0.368, alpha=2, right_comparison=False):
         DS.__init__(self)
         self.pg = pg
@@ -18,12 +42,47 @@ class StaticRSL(DS):
         # Build the skip list
         self.first_node, self.last_node, self.height = self.make_skip_list(ordered_elements, frequencies)
 
+
+
+    """
+    Compute minimum probability at level i.
+
+    Parameters:
+    - i : int
+        Level index
+
+    Returns:
+    - float : p0 raised to the 2^i power
+    """
     def pMin(self, i):
         return self.p0 ** (2**i)
 
+
+
+    """
+    Compute delta_i used in static skip list height calculations.
+
+    Parameters:
+    - i : int
+        Index used to compute delta_i
+
+    Returns:
+    - float : delta value for level i
+    """
     def delta_i(self, i):
         return np.log2(self.alpha * self.pMin(i)) / np.log2(self.pg)
 
+
+    """
+    Determine static level index for a given frequency.
+
+    Parameters:
+    - frequency : float
+        Frequency value used to calculate level
+
+    Returns:
+    - int : computed level index i
+    """
     def get_i(self, frequency):
         p = self.p0
         i = 0
@@ -32,6 +91,18 @@ class StaticRSL(DS):
             i += 1
         return i
 
+
+
+    """
+    Compute the cumulative f-values for k levels.
+
+    Parameters:
+    - k : int
+        Number of levels
+
+    Returns:
+    - list of floats : cumulative f-values for each level
+    """
     def get_fValues(self, k):
         fVals = []
         for i in range(k):
@@ -41,14 +112,41 @@ class StaticRSL(DS):
             fVals.append(f)
         return fVals
 
+
+
+    """
+    Compute the fixed height for a node based on f-value.
+
+    Parameters:
+    - fi : float
+        Delta/f-value for the node
+    - H : int
+        Maximum allowed height
+
+    Returns:
+    - int : final height of the node
+    """
     def get_height(self, fi, H):
         # Heights are fixed; no dynamic adjustment
         return min(H, np.ceil(H - fi))                                                      
 
 
 
+    """
+    Construct the static skip list with fixed node heights.
 
+    Parameters:
+    - ordered_elements : list
+        Elements in sorted order
+    - frequencies : list
+        Corresponding frequencies
 
+    Returns:
+    - tuple :
+        first_node : bottom-left node of the skip list
+        last_layer_node : last node in the bottom layer
+        h : int, total number of levels in the skip list
+    """
     def make_skip_list(self, ordered_elements, frequencies):
         n = len(ordered_elements)
         k = max(2, self.get_i(n**(-1/4)) + 1)  # simplified static calculation
@@ -100,6 +198,17 @@ class StaticRSL(DS):
 
 
 
+    """
+    Static insertion: update elements/frequencies list without changing structure.
+
+    Parameters:
+    - key : element to insert
+    - freq : float (optional)
+        Frequency of the element
+
+    Side effects:
+    - Updates self.elements (sorted) and self.frequencies
+    """
     def insert(self, key, freq=None):
         # Static insert: only update element/frequency lists
         if key not in self.elements:
@@ -109,6 +218,17 @@ class StaticRSL(DS):
             if freq is not None:
                 self.frequencies.insert(idx, freq)
         
+
+
+    """
+    Static deletion: remove element and frequency without changing structure.
+
+    Parameters:
+    - key : element to remove
+
+    Side effects:
+    - Updates self.elements and self.frequencies
+    """
     def delete(self, key):
         # Static delete: only update element/frequency lists
         if key in self.elements:
@@ -116,7 +236,18 @@ class StaticRSL(DS):
             self.elements.pop(idx)
             self.frequencies.pop(idx)
 
-    # Standard skip list search
+    """
+    Standard skip list search for a given key.
+
+    Parameters:
+    - key_Value : element to search
+    - __splay_cost__ : bool (ignored, for API compatibility)
+
+    Returns:
+    - tuple :
+        Node if found, else None
+        int : cost (number of traversed nodes)
+    """
     def search(self, key_Value, __splay_cost__=False):
         cost = 0
         node = self.first_node
@@ -135,6 +266,18 @@ class StaticRSL(DS):
                 node = node.down
         return None, cost
 
+
+
+    """
+    Breadth-first traversal of the skip list.
+
+    Parameters:
+    - __print__ : bool
+        If True, print the nodes at each level
+
+    Returns:
+    - list of lists of nodes : each sublist corresponds to a level
+    """
     def BFS(self, __print__=False):
         first_node = self.first_node
         levels = []

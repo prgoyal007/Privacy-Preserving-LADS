@@ -17,11 +17,31 @@ class Rank:
 	uniform_rank: int
 
 class ZipZipTree:
+	
+	
+	
+	"""
+	Initialize a ZipZipTree.
+
+	Parameters:
+	- capacity : Maximum number of nodes expected (affects rank scaling)
+	"""
 	def __init__(self, capacity: int):
 		self.capacity = capacity
 		self.root = None
 		self.size = 0	# number of nodes in the tree
 
+
+
+	"""
+    Generate a random rank for a node based on geometric and uniform distributions.    
+    
+	Parameters:
+    - freq: Optional frequency to adjust geometric rank
+    
+    Returns:
+    - Rank object (geometric_rank, uniform_rank)
+	"""
 	def get_random_rank(self, freq: float = None) -> Rank:
 		# Geometric Distribution: # of failures before the first success
 		geo_rank = 0
@@ -38,6 +58,25 @@ class ZipZipTree:
 
 		return Rank(geo_rank, uniform_rank)
 
+
+
+	"""
+	Insert a new key-value pair into the ZipZipTree, optionally using a given rank.
+
+	Parameters:
+	- key : KeyType
+		The key of the new node to insert.
+	- val : ValType
+		The value associated with the key.
+	- freq : float
+		Optional frequency to influence rank generation.
+	- rank : Rank (optional)
+		Precomputed rank to use instead of generating a random one.
+
+	Side effects:
+	- Updates self.root to reflect the inserted node.
+	- Increments self.size by 1.
+	"""
 	def insert(self, key: KeyType, val: ValType, freq: float, rank: Rank = None):
 		# Start by generating a random rank if not provided
 		if rank is None:
@@ -49,6 +88,22 @@ class ZipZipTree:
 		self.size += 1	# increment the size of the tree
 
 
+
+	"""
+	Recursively insert a node into the subtree, maintaining Zip Tree properties.
+
+	Parameters:
+	- node : Node
+		Root of the current subtree.
+	- new_node : Node
+		Node to insert.
+
+	Returns:
+	- Node : New root of the subtree after insertion.
+
+	Side effects:
+	- May modify left/right child pointers of nodes along the path.
+	"""
 	def insert_node(self, node: Node, new_node: Node) -> Node:
 		if not node:
 			return new_node
@@ -68,10 +123,43 @@ class ZipZipTree:
 
 		return node	# unchanged root
 
+
+
+	"""
+	Remove a node with a given key from the ZipZipTree.
+
+	Parameters:
+	- key : KeyType
+		The key of the node to remove.
+
+	Side effects:
+	- Updates self.root to reflect the removal.
+	- Decrements self.size by 1.
+	"""
 	def remove(self, key: KeyType):
 		self.root = self.remove_node(self.root, key)	# remove the node with the given key from the tree
 		self.size -= 1	# decrement the size of the tree
 	
+
+	
+	"""
+	Recursively remove a node from a subtree, maintaining Zip Tree properties.
+
+	Parameters:
+	- node : Node
+		Root of the current subtree.
+	- key : KeyType
+		Key of the node to remove.
+
+	Returns:
+	- Node : New root of the subtree after removal.
+
+	Raises:
+	- KeyError if the key is not found.
+
+	Side effects:
+	- May modify left/right child pointers of nodes along the path.
+	"""
 	def remove_node(self, node: Node, key: KeyType) -> Node:
 		if not node:
 			raise KeyError(f"Key {key} not found in the tree.")
@@ -86,6 +174,18 @@ class ZipZipTree:
 		
 		return node	# unchanged root
 
+
+
+	"""
+	Find the value associated with a key.
+
+	Parameters:
+	- key : KeyType
+		The key to search for.
+
+	Returns:
+	- Value associated with the key if found, else None.
+	"""
 	def find(self, key: KeyType):
 		node = self.root
 		while node:
@@ -99,6 +199,20 @@ class ZipZipTree:
 		# key not found in the tree
 		return None
 	
+
+
+	"""
+	Find a value by key and track the number of comparisons performed.
+
+	Parameters:
+	- key : KeyType
+		The key to search for.
+
+	Returns:
+	- Tuple (value, cost) where:
+		- value : value associated with key (None if not found)
+		- cost : number of comparisons performed
+	"""
 	def find_with_cost(self, key: KeyType):
 		node = self.root
 		cost = 0
@@ -114,22 +228,84 @@ class ZipZipTree:
 			# key not found in the tree
 		return None, cost
 
+
+
+	"""
+	Return the current number of nodes in the ZipZipTree.
+
+	Returns:
+	- int : number of nodes in the tree (self.size)
+	"""
 	def get_size(self) -> int:
 		return self.size
 
+
+
+	"""
+	Compute the height of the ZipZipTree.
+
+	Returns:
+	- int : height of the tree (max depth from root to any leaf)	
+	"""
 	def get_height(self) -> int:
 		return self.recurse_height(self.root)
 
+
+
+	"""
+	Compute the depth of a node with the given key.
+
+	Parameters:
+	- key : KeyType
+		The key of the node to measure depth.
+
+	Returns:
+	- int : depth of the node (distance from root)
+
+	Raises:
+	- KeyError if the key is not found.
+	"""
 	def get_depth(self, key: KeyType):
 		# similar to get_height, but only for the path from the root to the node with the given key
 		return self.recurse_depth(self.root, key, 0)
 
+
+
+	"""
+	Recursively compute the height of a subtree.
+
+	Parameters:
+	- node : Node
+		Root of the current subtree.
+
+	Returns:
+	- int : height of the subtree
+	"""
 	def recurse_height(self, node: Node) -> int:
 		if not node:
 			return -1
 		else:
 			return 1 + max(self.recurse_height(node.left), self.recurse_height(node.right))
 	
+
+
+	"""
+	Recursively compute the depth of a node in a subtree.
+
+	Parameters:
+	- node : Node
+		Root of the current subtree.
+	- key : KeyType
+		The key of the node whose depth is being computed.
+	- current_depth : int
+		Depth accumulated along the recursion.
+
+	Returns:
+	- int : depth of the node with the given key
+
+	Raises:
+	- KeyError if the key is not found.
+	"""
 	def recurse_depth(self, node: Node, key: KeyType, current_depth: int) -> int:
 		if not node:
 			raise KeyError(f"Key {key} not found in the tree.")
@@ -141,6 +317,24 @@ class ZipZipTree:
 		else:
 			return self.recurse_depth(node.right, key, current_depth + 1)
 	
+
+
+	"""
+	Compare two ranks to determine which node has higher priority.
+
+	Parameters:
+	- rank1 : Rank
+		Rank of the first node.
+	- rank2 : Rank
+		Rank of the second node.
+	- k1 : KeyType (optional)
+		Key of the first node (used for tie-breaking).
+	- k2 : KeyType (optional)
+		Key of the second node (used for tie-breaking).
+
+	Returns:
+	- bool : True if rank1 is higher than rank2, else False
+	"""
 	def is_higher_rank(self, rank1: Rank, rank2: Rank, k1: KeyType = None, k2: KeyType = None) -> bool:
 		# Compare the ranks based on the geometric rank first, then the uniform rank
 		if rank1.geometric_rank != rank2.geometric_rank:	# compare geometric ranks first
@@ -150,6 +344,21 @@ class ZipZipTree:
 		return k1 < k2 	# tie-breaker based on the keys if ranks are equal
 		
 	
+
+	"""
+	Split (unzip) a subtree into two trees based on a given key and rank.
+
+	Parameters:
+	- node : Node
+		Root of the current subtree to unzip.
+	- key : KeyType
+		Key of the node being inserted that may become the new root.
+	- rank : Rank
+		Rank of the node being inserted.
+
+	Returns:
+	- tuple (Node, Node) : left and right subtrees after unzipping
+	"""
 	def unzip(self, node: Node, key: KeyType, rank: Rank) -> tuple[Node, Node]:
 		# Unzip the tree into two trees based on the given key and rank
 		if not node:
@@ -174,6 +383,20 @@ class ZipZipTree:
 				# If key is greater than node's key, unzip the right subtree
 				return node, None
 	
+
+
+	"""
+	Merge (zip) two subtrees into one, maintaining Zip Tree properties.
+
+	Parameters:
+	- left : Node
+		Root of the left subtree.
+	- right : Node
+		Root of the right subtree.
+
+	Returns:
+	- Node : new root of the merged subtree
+	"""
 	def zip(self, left: Node, right: Node) -> Node:
 		# Zip two trees together based on their ranks
 
@@ -190,7 +413,25 @@ class ZipZipTree:
 		else:
 			right.left = self.zip(left, right.left)
 			return right
-			
+
+
+
+	"""
+	Pretty-print the tree structure with keys and ranks.
+
+	Parameters:
+	- node : Node (optional)
+		Root of the subtree to print; defaults to tree root.
+	- indent : str
+		Indentation string for formatting.
+	- position : str
+		Position label for current node ('root', 'L', 'R').
+	- visited : set
+		Tracks visited nodes to avoid cycles.
+
+	Side effects:
+	- Prints the tree to stdout.
+	"""
 	def print_tree(self, node=None, indent="", position="root", visited=None):
 		if visited is None:
 			visited = set()
@@ -203,6 +444,8 @@ class ZipZipTree:
 		print(f"{indent}[{position}] key={node.key}, rank=({node.rank.geometric_rank}, {node.rank.uniform_rank})")
 		self.print_tree(node.left, indent + "  ", "L", visited)
 		self.print_tree(node.right, indent + "  ", "R", visited)
+
+
 
 class Node:
 		def __init__(self, key, val, rank: Rank):
