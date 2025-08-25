@@ -4,7 +4,7 @@ from tests.DataGenerator import *
 from structures.StaticRSL import *
 from structures.BiasedZipZipTree import *
 from structures.ThresholdZipZipTree import *
-from structures.Treap import *
+from structures.LTreap import *
 from structures.AVLTree import *
 
 def TestDS(ds, ordered_elements, search_elements, path_to_save, true_search=False, __splay_cost__=False,
