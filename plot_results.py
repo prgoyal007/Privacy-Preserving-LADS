@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 ds_names = ["StaticRSL", "BiasedZipZipTree", "ThresholdZipZipTree", "Treap", "AVL"]
-n_values = [1000, 2000, 5000]
+n_values = [1000, 2000, 5000, 10000]
 
 
 """
@@ -102,10 +102,6 @@ Load all JSON files and collect sizes per DS per n.
 Returns nested dictionary: sizes[alpha][error][ds] = list of sizes for n_values
 """
 def load_sizes(path_dir, ds_names, n_values, alpha_values=[1], error_values=None):
-    """
-    Load all JSON files and collect sizes per DS per n.
-    Returns nested dictionary: sizes[alpha][error][ds] = list of sizes for n_values
-    """
     sizes = {}
 
     for alpha in alpha_values:

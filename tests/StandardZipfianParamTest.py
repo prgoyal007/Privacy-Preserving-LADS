@@ -126,7 +126,7 @@ def read_data(path):
 
 
 # Parameters for Standard Zipfian Test
-ns = [1000, 2000, 5000]
+ns = [1000, 2000, 5000, 10000]
 alphas = [1]                            # Only test α = 1
 errors = [0]                            # δ = 0 → perfect predictions
 search_size = 100000
