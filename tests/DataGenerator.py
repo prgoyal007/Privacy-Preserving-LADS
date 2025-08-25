@@ -216,10 +216,10 @@ def exponential_freq(n, search_size, alpha = 1.01):
     key_values = list(range(n))
     frequencies = [1 / (alpha) ** (i+1) for i in range(n)]
     frequencies = np.array(frequencies) / np.sum(frequencies)
-    search_elements = np.random.choice(key_values, search_size, p=frequencies)
+    # search_elements = np.random.choice(key_values, search_size, p=frequencies)
 
-    # Frequencies and search frequencies are the same
-    return key_values, [int(s) for s in search_elements], [float(f) for f in frequencies], [float(f) for f in frequencies]
+    #return key_values, [int(s) for s in search_elements], [float(f) for f in frequencies], [float(f) for f in frequencies]
+    return frequencies
 
 def zipfi_freq(n, search_size, error, alpha):
     key_values = list(range(n))
