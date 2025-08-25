@@ -75,8 +75,13 @@ def TestDS(ds, ordered_elements, search_elements, path_to_save, true_search=Fals
             else:
                 _, c = ds.search(key, __splay_cost__=__splay_cost__)
             costs.append(c)
+    size = ds.get_size() if hasattr(ds, "get_size") else None
+    results = {
+        "costs": costs,
+        "size": size
+    }
 
-    write_data(costs, path_to_save)
+    write_data(results, path_to_save)
     return costs
 
 

@@ -20,7 +20,7 @@ class AVLTree(DS):
         DS.__init__(self)
         self.root = None
         self.elements = []
-        self.node_count = 0
+        self.size = 0
         if len(elements) > 0:
             for v in elements:
                 self.insert(v, None)
@@ -74,7 +74,7 @@ class AVLTree(DS):
     def insert(self, key, freq):
         if key not in self.elements:
             self.elements.append(key)
-            self.node_count += 1
+            self.size += 1
             log = "{0} inserted. N = {1}".format(key, len(self.elements))
         else:
             log = "{0} insertion failed. N = {1}".format(key, len(self.elements))
@@ -82,13 +82,15 @@ class AVLTree(DS):
         #     writer.write(log + "\n")
         node = self.__insert_node(self.root, key)
 
-    def get_node_count(self):
-        return self.node_count
 
         self.root = node
         return node
 
-
+    """
+    Returns the number of elements in the AVL tree.
+    """
+    def get_size(self):
+        return self.size
 
     """
     Recursive helper function for insert: 
