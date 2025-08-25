@@ -188,7 +188,7 @@ for n in ns:
 
             # Static RSL
             print(f"n: {n}, alpha: {alpha}, Making Static RSL...")
-            static_rsl = StaticRSL(key_values.copy(), frequencies.copy())
+            static_rsl = StaticRSL(key_values.copy(), frequencies.copy(), right_comparison=True)
             TestDS(static_rsl, key_values, search_elements, f"{__path_dir__}/StaticRSL_n{n}_a{alpha}.json")
 
             # Biased ZipZip Tree

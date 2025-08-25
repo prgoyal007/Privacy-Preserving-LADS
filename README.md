@@ -38,8 +38,6 @@ python -m tests.{fileName}
 - Example:
 ```bash
 python -m tests.StandardZipfianParamTest
-python -m tests.RandomZipfianParamTest
-python -m tests.AdvZipfianParamTest
 ```
 
 ## Why -m is used
