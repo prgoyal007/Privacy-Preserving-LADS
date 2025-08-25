@@ -26,6 +26,7 @@ class Treap(DS):
         self.log_priority = log_priority
         self.root = None
         self.list_of_jobs = []                  # Used for incremental tree building
+        self.node_count = len(elements) if elements else 0
         self.make_tree()                        # Build initial tree
 
 
@@ -72,10 +73,14 @@ class Treap(DS):
     def insert(self, key, frequency):
         if key not in self.elements:
             self.elements.append(key)
+            self.node_count += 1
             self.frequencies = list(self.frequencies)
             self.frequencies.append(frequency)
             self.frequencies = np.array(self.frequencies) / np.sum(self.frequencies)
             self.make_tree()
+
+    def get_node_count(self):
+        return self.node_count
 
 
 
@@ -94,6 +99,7 @@ class Treap(DS):
             self.frequencies = list(self.frequencies)
             self.frequencies.pop(idx)
             self.frequencies = np.array(self.frequencies) / np.sum(self.frequencies)
+            self.node_count -= 1
             self.make_tree()
 
 

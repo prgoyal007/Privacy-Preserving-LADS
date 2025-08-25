@@ -26,6 +26,7 @@ class BinaryTree(DS):
         self.elements = elements
         self.frequencies = frequencies
         self.pessimistic = pessimistic
+        self.node_count = len(elements) if elements else 0
         self.make_tree(elements, frequencies, pessimistic)
 
 
@@ -79,6 +80,7 @@ class BinaryTree(DS):
             self.frequencies = list(self.frequencies)
             self.frequencies.append(frequency)
             self.frequencies = np.array(self.frequencies) / np.sum(self.frequencies)
+            self.node_count += 1
             self.make_tree(self.elements, self.frequencies, self.pessimistic)
 
         else:
@@ -87,6 +89,12 @@ class BinaryTree(DS):
         #     writer.write(log+ "\n")
 
 
+    """
+    Returns the current number of nodes in the tree.
+
+    """
+    def get_node_count(self):
+        return self.node_count
 
     """
     Delete a key (if present), then rebuild the tree. 
@@ -114,6 +122,7 @@ class BinaryTree(DS):
             self.frequencies = list(self.frequencies)
             self.frequencies.pop(idx)
             self.frequencies = np.array(self.frequencies) / np.sum(self.frequencies)
+            self.node_count -= 1
             self.make_tree(self.elements, self.frequencies, self.pessimistic)
         else:
             log = "{0} deletion failed. N = {1}".format(key, len(self.elements))
