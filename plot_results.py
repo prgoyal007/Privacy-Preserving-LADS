@@ -102,10 +102,6 @@ Load all JSON files and collect sizes per DS per n.
 Returns nested dictionary: sizes[alpha][error][ds] = list of sizes for n_values
 """
 def load_sizes(path_dir, ds_names, n_values, alpha_values=[1], error_values=None):
-    """
-    Load all JSON files and collect sizes per DS per n.
-    Returns nested dictionary: sizes[alpha][error][ds] = list of sizes for n_values
-    """
     sizes = {}
 
     for alpha in alpha_values:
@@ -136,6 +132,7 @@ def load_sizes(path_dir, ds_names, n_values, alpha_values=[1], error_values=None
                     else:
                         sizes[alpha][error][ds].append(np.nan)
     return sizes
+
 
 def plot_grouped_size(sizes_per_n, n_values, title, ylabel):
     ds_names = list(sizes_per_n.keys())
@@ -259,7 +256,7 @@ if __name__ == "__main__":
     # Standard Zipfian Test (δ=0)
     path_std = "results/StandardZipfianTest"
     avg_std = load_avg_costs(path_std, ds_names, n_values)
-    plot_grouped_bar(avg_std[1][None], n_values, "Standard Zipfian Test (α=1)", "Avg. # of Comparisons per Query", annotate_threshold=25)
+    plot_grouped_bar(avg_std[1][None], n_values, "Standard Zipfian Test (δ=0.0, α=1)", "Avg. # of Comparisons per Query", annotate_threshold=25)
 
     # Adversarial Zipfian Test (pick δ=0.9 for plotting)
     path_adv = "results/AdvZipfianTest"
