@@ -185,7 +185,7 @@ for n in ns:
 
             # Static RSL            
             print(f"n: {n}, alpha: {alpha}, Making Static RSL...")
-            static_rsl = StaticRSL(key_values.copy(), frequencies.copy())
+            static_rsl = StaticRSL(key_values.copy(), frequencies.copy(), right_comparison=True)
             TestDS(static_rsl, key_values, search_elements,
                    "{2}/StaticRSL_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
 
