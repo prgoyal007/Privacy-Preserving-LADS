@@ -78,7 +78,13 @@ def TestDS(ds, ordered_elements, search_elements, path_to_save, true_search=Fals
                 _, c = ds.search(key, __splay_cost__=__splay_cost__)
             costs.append(c)
 
-    write_data(costs, path_to_save)
+    size = ds.get_size() if hasattr(ds, "get_size") else None
+    results = {
+        "costs": costs,
+        "size": size
+    }
+
+    write_data(results, path_to_save)
     return costs
 
 
@@ -208,3 +214,9 @@ for n in ns:
             print(f"n: {n}, alpha: {alpha}, Making AVL Tree...")
             avl = AVLTree(key_values)
             TestDS(avl, key_values, search_elements, f"{__path_dir__}/AVL_n{n}_a{alpha}.json")
+
+            print(f"\nStatic RSL size: {static_rsl.get_size()} nodes")
+            print(f"Biased ZipZip Tree size: {bzzt.get_size()} nodes")
+            print(f"Threshold ZipZip Tree size: {tzzt.get_size()} nodes")
+            print(f"Treap size: {treap.get_size()} nodes")
+            print(f"AVL Tree size: {avl.get_size()} nodes\n")

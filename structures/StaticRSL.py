@@ -13,6 +13,7 @@ class StaticRSL(DS):
         self.HFactor = 50  # TODO
         self.p0 = p0  # TODO
         self.memory = 0
+        self.size = 0
         self.right_comparison = right_comparison
         self.setup(ordered_elements, frequencies)
 
@@ -24,7 +25,8 @@ class StaticRSL(DS):
         # self.frequencies = frequencies
         # self.first_node, self.last_node, self.height = self.make_skip_list(ordered_elements, frequencies)
 
-
+    def get_size(self):
+        return self.size
 
 
 
@@ -38,6 +40,7 @@ class StaticRSL(DS):
         # self.alpha = alpha  # TODO
         # self.HFactor = 50  # TODO
         # self.p0 = p0  # TODO
+        self.size = 0
         self.first_node, self.last_node, self.height = self.make_skip_list(ordered_elements, frequencies)
         # self.right_comparison = right_comparison
 
@@ -102,11 +105,13 @@ class StaticRSL(DS):
         for i, e in enumerate(ordered_elements):
             n = SkipListNode(e, height=hValues[i+1])
             self.memory += hValues[i+1] + 1
+            self.size += 1  # counting bottom layer nodes
             nodes[-1].right = n
             n.left = nodes[-1]
             nodes.append(n)
         n = SkipListNode(float('inf'), height=float('inf'))
         nodes[-1].right = n
+        self.size += 1  # add inf nodes to size count
         n.left = nodes[-1]
         nodes.append(n)
         h = 0
@@ -115,6 +120,7 @@ class StaticRSL(DS):
             for node in nodes:
                 if node.height > h:
                     top = node.generate_top()
+                    self.size += 1  # counting top node
                     next_layer.append(top)
             for i in range(len(next_layer) - 1):
                 node = next_layer[i]
@@ -164,10 +170,12 @@ class StaticRSL(DS):
                 if hNode > self.height:
                     self.height += 1
                     first_top = self.first_node.generate_top()
+                    self.size += 1  # counting top node
                     tmpNode = self.first_node
                     while tmpNode.right is not None:
                         tmpNode = tmpNode.right
                     inf_top = tmpNode.generate_top()
+                    self.size += 1  # counting top node
                     first_top.right = inf_top
                     inf_top.left = first_top
                     self.first_node=  first_top
@@ -178,6 +186,7 @@ class StaticRSL(DS):
                 while True:
                     if newNode is None:
                         newNode = SkipListNode(key, height=hNode)
+                        self.size += 1  # counting new node
                     newNode.right = node.right
                     newNode.right.left = newNode
                     node.right = newNode
@@ -189,6 +198,7 @@ class StaticRSL(DS):
                         node = node.left
                     node = node.top
                     newNode = newNode.generate_top()
+                    self.size += 1  # counting top node
 
 
 
@@ -214,6 +224,7 @@ class StaticRSL(DS):
                 left.right = right
                 right.left = left
                 node = node.down
+                self.size -= 1   # node removed
             while self.first_node.right.value == float('inf') and self.first_node.down is not None:
                 self.first_node = self.first_node.down
                 self.height -= 1
