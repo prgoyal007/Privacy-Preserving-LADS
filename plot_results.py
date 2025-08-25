@@ -86,13 +86,82 @@ def load_avg_costs(path_dir, ds_names, n_values, alpha_values=[1], error_values=
                         filename = f"{path_dir}/{ds}_n{n}_e{int(error*100)}_a{alpha}.json"
                     
                     if os.path.exists(filename):
+                        # Adjusted to handle both costs and size in results
+                        # results = {"costs": [...], "size": ...}
                         with open(filename) as f:
-                            costs = json.load(f)
+                            data = json.load(f)
+                        costs = data.get("costs", [])
                         avg_costs[alpha][error][ds].append(np.mean(costs))
                     else:
                         avg_costs[alpha][error][ds].append(np.nan)
 
     return avg_costs
+
+"""
+Load all JSON files and collect sizes per DS per n.
+Returns nested dictionary: sizes[alpha][error][ds] = list of sizes for n_values
+"""
+def load_sizes(path_dir, ds_names, n_values, alpha_values=[1], error_values=None):
+    """
+    Load all JSON files and collect sizes per DS per n.
+    Returns nested dictionary: sizes[alpha][error][ds] = list of sizes for n_values
+    """
+    sizes = {}
+
+    for alpha in alpha_values:
+        sizes[alpha] = {}
+        for ds in ds_names:
+            for n in n_values:
+                evs = error_values
+                if evs is None:
+                    evs = detect_error_values(path_dir, ds, n, alpha)
+                    if not evs:
+                        evs = [None]
+
+                for error in evs:
+                    if alpha not in sizes:
+                        sizes[alpha] = {}
+                    if error not in sizes[alpha]:
+                        sizes[alpha][error] = {ds: [] for ds in ds_names}
+
+                    if error is None:
+                        filename = f"{path_dir}/{ds}_n{n}_a{alpha}.json"
+                    else:
+                        filename = f"{path_dir}/{ds}_n{n}_e{int(error*100)}_a{alpha}.json"
+
+                    if os.path.exists(filename):
+                        with open(filename) as f:
+                            data = json.load(f)
+                        sizes[alpha][error][ds].append(data.get("size", np.nan))
+                    else:
+                        sizes[alpha][error][ds].append(np.nan)
+    return sizes
+
+def plot_grouped_size(sizes_per_n, n_values, title, ylabel):
+    ds_names = list(sizes_per_n.keys())
+    x = np.arange(len(ds_names))
+    width = 0.2
+
+    plt.figure(figsize=(10,6))
+    bars_list = []
+
+    for i, n_val in enumerate(n_values):
+        heights = [sizes_per_n[ds][i] for ds in ds_names]
+        bars = plt.bar(x + i*width, heights, width=width, label=f"n={n_val}")
+        bars_list.append(bars)
+
+        # Annotate bars with actual size values
+        for bar, h in zip(bars, heights):
+            plt.text(bar.get_x() + bar.get_width()/2, h + 15,
+                     f"{int(h)}", ha='center', va='bottom', fontsize=10, rotation=0, color='black')
+
+    plt.xticks(x + width*(len(n_values)-1)/2, ds_names)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.legend(title="Input size n")
+    plt.tight_layout()
+    plt.show()
+
 
 
 
@@ -207,3 +276,18 @@ if __name__ == "__main__":
     avg_alpha = load_avg_costs(path_adv, ds_names, n_values=[2000], alpha_values=alpha_sweep, error_values=[0.9])
     avg_alpha_flat = {alpha: {ds: avg_alpha[alpha][0.9][ds][0] for ds in ds_names} for alpha in alpha_sweep}
     plot_zipf_parameter_sweep(avg_alpha_flat, alpha_sweep, ds_names, "Impact of Zipf Parameter α on DS Performance", "Avg. # of Comparisons per Query", annotate_threshold=25)
+
+    # -----------------------------
+    # Plot sizes for Standard Zipfian Test
+
+    # Standard Zipfian Test - SIZE
+    sizes_std = load_sizes(path_std, ds_names, n_values)
+    plot_grouped_size(sizes_std[1][None], n_values, "Standard Zipfian Test Sizes (α=1)", "Number of Nodes")
+
+    # Adversarial Zipfian Test - SIZE
+    sizes_adv = load_sizes(path_adv, ds_names, n_values, alpha_values=[1], error_values=[0.9])
+    plot_grouped_size(sizes_adv[1][0.9], n_values, "Adversarial Zipfian Test Sizes (δ=0.9, α=1)", "Number of Nodes")
+
+    # Random Zipfian Test - SIZE
+    sizes_rand = load_sizes("results/RandomZipfianTest", ds_names, n_values, alpha_values=[1], error_values=[0.9])
+    plot_grouped_size(sizes_rand[1][0.9], n_values, "Random Zipfian Test Sizes (δ=0.9, α=1)", "Number of Nodes")
