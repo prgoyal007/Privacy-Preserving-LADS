@@ -194,7 +194,7 @@ def plot_grouped_bar(avg_costs_per_n, n_values, title, ylabel, annotate_threshol
             for bar, h in zip(bars, heights):
                 if h > annotate_threshold:
                     plt.text(bar.get_x() + bar.get_width()/2, annotate_threshold + 0.5, 
-                             f"{h:.1f}", ha='center', va='bottom', fontsize=8, rotation=90, color='red')
+                             f"{h:.1f}", ha='center', va='bottom', fontsize=9, rotation=90, color='black')
 
     plt.xticks(x + width*(len(n_values)-1)/2, ds_names)
     plt.ylabel(ylabel)
