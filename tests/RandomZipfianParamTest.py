@@ -223,3 +223,8 @@ for n in ns:
             TestDS(avl, key_values, search_elements,
                    "{2}/AVL_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
             
+            print(f"\nStatic RSL size: {static_rsl.get_size()} nodes")
+            print(f"Biased ZipZip Tree size: {bzzt.get_size()} nodes")
+            print(f"Threshold ZipZip Tree size: {tzzt.get_size()} nodes")
+            print(f"Treap size: {treap.get_size()} nodes")
+            print(f"AVL Tree size: {avl.get_size()} nodes\n")
