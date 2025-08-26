@@ -212,7 +212,8 @@ def pessimistic_worst(n, search_size):
 
 # Generates frequencies of the form 1/α^i for each rank i.
 # Requires α > 1, but should be small.
-def exponential_freq(n, search_size, alpha = 1.01):
+def exponential_freq(n, ranks, error, alpha = 1.01):
+    error_ranks = [ranks[i] * (1 - error) + error * (n - ranks[i] + 1) for i in range(n)]
     key_values = list(range(n))
     frequencies = [1 / (alpha) ** (i+1) for i in range(n)]
     frequencies = np.array(frequencies) / np.sum(frequencies)

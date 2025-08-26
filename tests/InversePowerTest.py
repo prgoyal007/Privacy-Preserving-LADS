@@ -52,7 +52,7 @@ __generate_data__ = True
 __test_samples__ = True
 
 trials = 10
-__path_dir__ = "results/AdvZipfianTest"
+__path_dir__ = "results/InversePowerTest"
 
 for n in ns:
     for alpha in alphas:
@@ -70,7 +70,8 @@ for n in ns:
                     ranks = data['ranks']
                     search_frequencies = data['search_freq']
 
-                frequencies = zipfi_adversary(n, ranks, error, alpha)
+                # frequencies = zipfi_adversary(n, ranks, error, alpha)
+                frequencies = exponential_freq(n, ranks, error, alpha)
 
                 data = {
                     'keys': key_values,
@@ -90,7 +91,7 @@ for n in ns:
 
 
             # Static RSL            
-            print(f"n: {n}, alpha: {alpha}, Making Static RSL...")
+            print(f"n: {n}, alpha: {alpha}, Making RobustSL...")
             static_rsl = StaticRSL(key_values.copy(), frequencies.copy(), right_comparison=True)
             TestDS(static_rsl, key_values, search_elements,
                    "{2}/StaticRSL_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
