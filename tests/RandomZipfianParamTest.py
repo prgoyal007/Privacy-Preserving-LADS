@@ -121,7 +121,7 @@ def read_data(path):
         return json.load(reader)
 
 # Parameters for Random Zipfian Test
-ns = [1000, 2000, 5000, 10000]
+ns = [100, 500, 1000, 2000, 5000, 10000]
 alphas = [1, 1.25, 1.5, 2, 3]
 errors = [0, 0.01,  0.45, 0.9]
 search_size = 100000

@@ -134,27 +134,37 @@ def load_sizes(path_dir, ds_names, n_values, alpha_values=[1], error_values=None
     return sizes
 
 def plot_grouped_size(sizes_per_n, n_values, title, ylabel):
-    ds_names = list(sizes_per_n.keys())
-    x = np.arange(len(ds_names))
-    width = 0.2
+    x = np.arange(len(n_values))
+    width = 0.4
 
-    plt.figure(figsize=(10,6))
-    bars_list = []
+    plt.figure(figsize=(8,6))
 
-    for i, n_val in enumerate(n_values):
-        heights = [sizes_per_n[ds][i] for ds in ds_names]
-        bars = plt.bar(x + i*width, heights, width=width, label=f"n={n_val}")
-        bars_list.append(bars)
+    for j, n_val in enumerate(n_values):
+        # Get StaticRSL size for this n
+        size_val = sizes_per_n["StaticRSL"][j]
 
-        # Annotate bars with actual size values
-        for bar, h in zip(bars, heights):
-            plt.text(bar.get_x() + bar.get_width()/2, h + 15,
-                     f"{int(h)}", ha='center', va='bottom', fontsize=10, rotation=0, color='black')
+        # Baseline = n
+        baseline = n_val
+        extra = size_val - baseline if size_val > baseline else 0
 
-    plt.xticks(x + width*(len(n_values)-1)/2, ds_names)
+        # Baseline part (blue)
+        plt.bar(x[j], baseline, width=width, color="steelblue", label="n node count" if j == 0 else "")
+        # Annotate baseline inside/above blue bar
+        plt.text(x[j], baseline/2, f"{baseline}", ha='center', va='center', fontsize=9, color='white', fontweight="bold")
+
+        # Extra StaticRSL overhead (red, stacked)
+        if extra > 0:
+            plt.bar(x[j], extra, width=width, bottom=baseline, color="red", label="StaticRSL Additional Nodes" if j == 0 else "")
+            # Annotate overhead inside/above red bar
+            plt.text(x[j], baseline + extra/2, f"+{extra}", ha='center', va='center', fontsize=9, color='white', fontweight="bold")
+
+        # Annotate total size above the stacked bar
+        plt.text(x[j], size_val + 100, f"{size_val}", ha='center', va='bottom', fontsize=10, fontweight="bold")
+
+    plt.xticks(x, [f"n={n}" for n in n_values])
     plt.ylabel(ylabel)
     plt.title(title)
-    plt.legend(title="Input size n")
+    plt.legend()
     plt.tight_layout()
     plt.show()
 
@@ -278,12 +288,12 @@ if __name__ == "__main__":
 
     # Standard Zipfian Test - SIZE
     sizes_std = load_sizes(path_std, ds_names, n_values)
-    plot_grouped_size(sizes_std[1][None], n_values, "Standard Zipfian Test Sizes (α=1)", "Number of Nodes")
+    plot_grouped_size(sizes_std[1][None], n_values, "Standard Zipfian Test Size of StaticRSL", "Number of Nodes")
 
     # Adversarial Zipfian Test - SIZE
     sizes_adv = load_sizes(path_adv, ds_names, n_values, alpha_values=[1], error_values=[0.9])
-    plot_grouped_size(sizes_adv[1][0.9], n_values, "Adversarial Zipfian Test Sizes (δ=0.9, α=1)", "Number of Nodes")
+    plot_grouped_size(sizes_adv[1][0.9], n_values, "Adversarial Zipfian Test Size with StaticRSL", "Number of Nodes")
 
     # Random Zipfian Test - SIZE
     sizes_rand = load_sizes("results/RandomZipfianTest", ds_names, n_values, alpha_values=[1], error_values=[0.9])
-    plot_grouped_size(sizes_rand[1][0.9], n_values, "Random Zipfian Test Sizes (δ=0.9, α=1)", "Number of Nodes")
+    plot_grouped_size(sizes_rand[1][0.9], n_values, "Random Zipfian Test Size with StaticRSL", "Number of Nodes")
