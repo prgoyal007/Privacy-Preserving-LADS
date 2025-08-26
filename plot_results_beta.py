@@ -57,6 +57,65 @@ def load_avg_costs(path_dir, ds_names, n_values, alpha_values=None, error_values
     return avg_costs
 
 
+def load_sizes(path_dir, ds_names, n_values, alpha_values=None, error_values=None):
+    sizes = {}
+
+    for alpha in alpha_values:
+        sizes[alpha] = {}
+        for ds in ds_names:
+            for n in n_values:
+                evs = error_values
+                if evs is None:
+                    evs = detect_error_values(path_dir, ds, n, alpha)
+                    if not evs:
+                        evs = [None]
+
+                for error in evs:
+                    if alpha not in sizes:
+                        sizes[alpha] = {}
+                    if error not in sizes[alpha]:
+                        sizes[alpha][error] = {ds: [] for ds in ds_names}
+
+                    if error is None:
+                        filename = f"{path_dir}/{ds}_n{n}_a{alpha}.json"
+                    else:
+                        filename = f"{path_dir}/{ds}_n{n}_e{int(error*100)}_a{alpha}.json"
+
+                    if os.path.exists(filename):
+                        with open(filename) as f:
+                            data = json.load(f)
+                        sizes[alpha][error][ds].append(data.get("size", np.nan))
+                    else:
+                        sizes[alpha][error][ds].append(np.nan)
+    return sizes
+
+
+def plot_grouped_size(sizes_per_n, n_values, title, ylabel):
+    ds_names = list(sizes_per_n.keys())
+    x = np.arange(len(ds_names))
+    width = 0.2
+
+    plt.figure(figsize=(10,6))
+    bars_list = []
+
+    for i, n_val in enumerate(n_values):
+        heights = [sizes_per_n[ds][i] for ds in ds_names]
+        bars = plt.bar(x + i*width, heights, width=width, label=f"n={n_val}")
+        bars_list.append(bars)
+
+        # Annotate bars with actual size values
+        for bar, h in zip(bars, heights):
+            plt.text(bar.get_x() + bar.get_width()/2, h + 15,
+                     f"{int(h)}", ha='center', va='bottom', fontsize=10, rotation=0, color='black')
+
+    plt.xticks(x + width*(len(n_values)-1)/2, ds_names)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.legend(title="Input size n")
+    plt.tight_layout()
+    plt.show()
+
+
 def plot_grouped_bar(avg_costs_per_n, n_values, title, ylabel, annotate_threshold=None):
     ds_names = list(avg_costs_per_n.keys())
     x = np.arange(len(ds_names))
@@ -111,7 +170,7 @@ if __name__ == "__main__":
     # Test 1 (α=2, δ=0)
     path_rot = "results/ROTZipfianTest"
     avg_rot = load_avg_costs(path_rot, ds_names, n_values, alpha_values=[2.0])
-    plot_grouped_bar(avg_rot[2.0][0.0], n_values, "Standard Zipfian Test (α=2, δ=0)", "Avg. # of Comparisons per Query", annotate_threshold=25)
+    plot_grouped_bar(avg_rot[2.0][None], n_values, "Standard Zipfian Test (α=2, δ=0)", "Avg. # of Comparisons per Query", annotate_threshold=25)
 
     # Test 2 (α=2, δ=0.9)
     path_rof = "results/ROFZipfianTest"
@@ -126,6 +185,12 @@ if __name__ == "__main__":
 
     # Test 4 (α=1.01, δ=0,0.9)
     path_ip = "results/InversePowerTest"
-    avg_ip = load_avg_costs(path_ip, ds_names, n_values, alpha_values=[1.01], error_values=[0.0, 0.9])
+    avg_ip = load_avg_costs(path_rof, ds_names, n_values, alpha_values=[1.01], error_values=[0.0, 0.9])
     plot_grouped_bar(avg_ip[1.01][0.0], n_values, "Inverse Power Distribution Test (α=1.01, δ=0.0)", "Avg. # of Comparisons per Query", annotate_threshold=25)
     plot_grouped_bar(avg_ip[1.01][0.9], n_values, "Inverse Power Distribution Test (α=1.01, δ=0.9)", "Avg. # of Comparisons per Query", annotate_threshold=25)
+
+
+    # Test 5 n = [100, 500, 1000, 2000, 5000, 10000]
+    path_st = "results/SizeTest"
+    sizes_st = load_sizes(path_st, ds_names=["RobustSL"], n_values=[100, 500, 1000, 2000, 5000, 10000], alpha_values=[2.0])
+    plot_grouped_size(sizes_st[2.0][None], [100, 500, 1000, 2000, 5000, 10000], "Size Test", "Number of Nodes")
