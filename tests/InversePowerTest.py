@@ -5,6 +5,7 @@ from structures.StaticRSL import *
 from structures.BiasedZipZipTree import *
 from structures.ThresholdZipZipTree import *
 from structures.LTreap import *
+from structures.CTreap import *
 from structures.AVLTree import *
 
 def TestDS(ds, ordered_elements, search_elements, path_to_save, true_search=False, __splay_cost__=False,
@@ -70,7 +71,6 @@ for n in ns:
                     ranks = data['ranks']
                     search_frequencies = data['search_freq']
 
-                # frequencies = zipfi_adversary(n, ranks, error, alpha)
                 frequencies = exponential_freq(n, ranks, error, alpha)
 
                 data = {
@@ -90,19 +90,11 @@ for n in ns:
                 search_frequencies = data['search_freq']
 
 
-            # Static RSL            
+            # Static RobustSL            
             print(f"n: {n}, alpha: {alpha}, Making RobustSL...")
             static_rsl = StaticRSL(key_values.copy(), frequencies.copy(), right_comparison=True)
             TestDS(static_rsl, key_values, search_elements,
-                   "{2}/StaticRSL_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
-
-            # Biased ZipZip Tree
-            print(f"n: {n}, alpha: {alpha}, Making Biased ZipZip Tree...")
-            bzzt = ZipZipTree(n)
-            for key, freq in zip(key_values, frequencies):
-                bzzt.insert(key, key, freq)
-            TestDS(bzzt, key_values, search_elements,
-                   "{2}/BiasedZipZipTree_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
+                   "{2}/RobustSL_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
 
             # Threshold Biased ZipZip Tree
             print(f"n: {n}, alpha: {alpha}, Making Threshold ZipZip Tree...")
@@ -112,11 +104,25 @@ for n in ns:
             TestDS(tzzt, key_values, search_elements,
                    "{2}/ThresholdZipZipTree_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
 
-            # Treap
-            print(f"n: {n}, alpha: {alpha}, Making Treap...")
-            treap = Treap(key_values, frequencies=frequencies)
-            TestDS(treap, key_values, search_elements,
-                   "{2}/Treap_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
+            # Biased ZipZip Tree
+            print(f"n: {n}, alpha: {alpha}, Making Biased ZipZip Tree...")
+            bzzt = ZipZipTree(n)
+            for key, freq in zip(key_values, frequencies):
+                bzzt.insert(key, key, freq)
+            TestDS(bzzt, key_values, search_elements,
+                   "{2}/BiasedZipZipTree_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
+
+            # Chen's Treap
+            print(f"n: {n}, alpha: {alpha}, Making CTreap...")
+            ctreap = Treap(key_values, frequencies=frequencies, log_priority=True)
+            TestDS(ctreap, key_values, search_elements,
+                   "{2}/CTreap_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
+
+            # Lin's Treap
+            print(f"n: {n}, alpha: {alpha}, Making LTreap...")
+            ltreap = Treap(key_values, frequencies=frequencies, log_priority=False)
+            TestDS(ltreap, key_values, search_elements,
+                   "{2}/LTreap_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
 
             # AVL Tree
             print(f"n: {n}, alpha: {alpha}, Making AVL Tree...")
@@ -124,8 +130,9 @@ for n in ns:
             TestDS(avl, key_values, search_elements,
                    "{2}/AVL_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
             
-            print(f"\nStatic RSL size: {static_rsl.get_size()} nodes")
-            print(f"Biased ZipZip Tree size: {bzzt.get_size()} nodes")
+            print(f"\nRobustSL size: {static_rsl.get_size()} nodes")
             print(f"Threshold ZipZip Tree size: {tzzt.get_size()} nodes")
-            print(f"Treap size: {treap.get_size()} nodes")
+            print(f"Biased ZipZip Tree size: {bzzt.get_size()} nodes")
+            print(f"Chen's Treap size: {ctreap.get_size()} nodes")
+            print(f"Lin's Treap size: {ltreap.get_size()} nodes")
             print(f"AVL Tree size: {avl.get_size()} nodes\n")
