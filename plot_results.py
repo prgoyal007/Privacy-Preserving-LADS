@@ -28,18 +28,28 @@ mpl.rcParams.update({
 
 
 # Color palette (similar to RobustSL paper look)
-color_map = {
-    "RobustSL": "#2A73C7",            # blue
-    "ThresholdZipZipTree": "#F2C57C", # warm tan
-    "BiasedZipZipTree": "#9ACD9A",    # light green
-    "CTreap": "#E6A0C4",              # light pink
-    "LTreap": "#C0C0F0",              # pale purple
-    "AVL": "#E8B4A2",                 # salmon
-}
+# color_map = {
+#     "RobustSL": "#2A73C7",            # blue
+#     "ThresholdZipZipTree": "#F2C57C", # warm tan
+#     "BiasedZipZipTree": "#9ACD9A",    # light green
+#     "CTreap": "#E6A0C4",              # light pink
+#     "LTreap": "#C0C0F0",              # pale purple
+#     "AVL": "#E8B4A2",                 # salmon
+# }
 
 # fallback palette if dataset missing
-default_colors = ["#2A73C7", "#9ACD9A", "#E6A0C4", "#C0C0F0", "#E8B4A2", "#F2C57C"]
+# default_colors = ["#2A73C7", "#9ACD9A", "#E6A0C4", "#C0C0F0", "#E8B4A2", "#F2C57C"]
 
+# Okabe-Ito color-blind friendly palette
+color_map = {
+    "RobustSL": "#0072B2",            # blue
+    "ThresholdZipZipTree": "#E69F00", # orange
+    "BiasedZipZipTree": "#009E73",    # green
+    "CTreap": "#CC79A7",              # pink
+    "LTreap": "#56B4E9",              # light blue
+    "AVL": "#D55E00",                 # red
+}
+default_colors = ["#0072B2", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#E69F00"]
 
 def _alpha_to_fname_part(alpha: float) -> str:
     if float(alpha).is_integer():
