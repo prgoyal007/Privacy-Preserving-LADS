@@ -1,6 +1,7 @@
 import json, os, glob, re, math
 from typing import List, Dict, Any, Optional
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 ds_names = ["RobustSL", "ThresholdZipZipTree", "BiasedZipZipTree", "CTreap", "LTreap", "AVL"]
@@ -83,11 +84,9 @@ def load_avg_costs(path_dir: str,
                     else:
                         candidates.append(os.path.join(path_dir, f"{ds}_n{n}_e{int(round(ev*100))}_a{alpha_part}.json"))
 
-                    found = False
                     value = np.nan
                     for filename in candidates:
                         if os.path.exists(filename):
-                            found = True
                             try:
                                 with open(filename, 'r') as fh:
                                     data = json.load(fh)
@@ -102,7 +101,6 @@ def load_avg_costs(path_dir: str,
                                 value = np.nan
                             break
 
-                    # If none found, keep np.nan
                     avg_costs[alpha][ev][ds][n] = value
 
     return avg_costs
@@ -116,54 +114,87 @@ def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
                      annotate_threshold: Optional[float] = None):
 
     if ds_order is None:
-        ds_names = list(avg_costs_per_n.keys())
+        ds_order_local = list(avg_costs_per_n.keys())
     else:
-        ds_names = ds_order
+        ds_order_local = ds_order
 
-    x = np.arange(len(ds_names))
-    # adapt width to number of groups to avoid overlap
-    width = 0.8 / max(1, len(n_values))
+    df = pd.DataFrame(
+        {ds: avg_costs_per_n.get(ds, {}).get(n, np.nan) for n in n_values for ds in ds_order_local},
+        index=n_values
+    )
+
+    num_groups = len(n_values)
+    num_ds = len(ds_order_local)
+
+    # Horizontal spacing params
+    group_gap = 1.3
+    group_width = 0.6
+    width = group_width / max(1, num_ds)
+
+    # x positions for group centers
+    x = np.arange(num_groups) * group_gap
+
+    # hatch patterns (one per dataset)
+    patterns = ["/", "\\", "|", "-", "+", "x", "o", "O", ".", "*"]
+
+    # ensure we have as many hatches as we need
+    hatches = [patterns[i % len(patterns)] for i in range(num_ds)]
 
     plt.figure(figsize=(10, 6))
 
+    bars_handles = []
+
+    # offsets to center the dataset bars around the group center
+    offsets = (np.arange(num_ds) - (num_ds - 1) / 2.0) * width
+
     # For visual consistency, convert missing values (np.nan) to 0 for plotting,
     # but annotate or warn about missing values.
-    for i, n_val in enumerate(n_values):
-        heights = []
-        missing_any = False
-        for ds in ds_names:
-            h = avg_costs_per_n.get(ds, {}).get(n_val, np.nan)
-            if h is None or (isinstance(h, float) and math.isnan(h)):
-                missing_any = True
-                heights.append(0.0)
-            else:
-                heights.append(h)
+    for i, ds in enumerate(ds_order_local):
+        heights = df[ds].values.astype(float)
+        
+        # replace NaN with 0 for plotting, but keep NaN logic for warnings
+        nan_mask = np.isnan(heights)
+        
+        if nan_mask.any():
+            print(f"Warning: missing values for dataset '{ds}' at n = {[n for n, m in zip(n_values, nan_mask) if m]} (plotted as 0).")
+            heights_plot = np.where(nan_mask, 0.0, heights)
+        else:
+            heights_plot = heights
 
-        bars = plt.bar(x + i * width, heights, width=width, label=f"n={n_val}")
+        xpos = x + offsets[i]
+        bars = plt.bar(xpos, heights_plot, width=width, label=ds,
+                       edgecolor='black', hatch=hatches[i], zorder=3)
 
-        # Annotate bars exceeding threshold or show values
-        for bar, h in zip(bars, heights):
+        bars_handles.append(bars)
+
+        # annotate bar values (small) unless annotate_threshold used for special color
+        for bar, h in zip(bars, heights_plot):
             if annotate_threshold is not None:
                 if h > annotate_threshold:
                     plt.text(bar.get_x() + bar.get_width() / 2,
                              h + 0.5,
                              f"{h:.1f}", ha='center', va='bottom', fontsize=8, rotation=90, color='red')
             else:
-                # label each bar with its value (small font)
-                plt.text(bar.get_x() + bar.get_width() / 2,
-                         h + 0.2,
-                         f"{h:.1f}", ha='center', va='bottom', fontsize=7, rotation=90)
+                # only annotate non-zero bars to reduce clutter
+                if h > 0:
+                    plt.text(bar.get_x() + bar.get_width() / 2,
+                             h + 0.2,
+                             f"{h:.1f}", ha='center', va='bottom', fontsize=7, rotation=90)
 
-        if missing_any:
-            print(f"Warning: some values for n={n_val} are missing or NaN (plotted as 0).")
-
-    plt.xticks(x + width * (len(n_values) - 1) / 2, ds_names)
+    # X-axis: show n-level labels centered under each group
+    plt.xticks(x, [str(n) for n in n_values])
+    plt.xlabel("n (problem size)")
     plt.ylabel(ylabel)
     plt.title(title)
-    plt.legend()
+
+    # Legend: one entry per dataset (extract first patch for each dataset)
+    # create a list of handles (one handle per dataset) for legend
+    first_handles = [h[0] for h in bars_handles]
+    plt.legend(first_handles, ds_order_local, title="Data Structure", bbox_to_anchor=(1.02, 1), loc='upper left')
+
+    plt.grid(axis='y', linestyle=':', zorder=0)
     plt.tight_layout()
     plt.show()
-
 
 
 def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]],
