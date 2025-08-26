@@ -135,7 +135,7 @@ def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
     x = np.arange(num_groups) * group_gap
 
     # hatch patterns (one per dataset)
-    patterns = ["/", "\\", "|", "-", "+", "x", "o", "O", ".", "*"]
+    patterns = ["/", "o", "|", "x", "+", "*", "\\", "O", ".", "-"]
 
     # ensure we have as many hatches as we need
     hatches = [patterns[i % len(patterns)] for i in range(num_ds)]
@@ -183,7 +183,7 @@ def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
 
     # X-axis: show n-level labels centered under each group
     plt.xticks(x, [str(n) for n in n_values])
-    plt.xlabel("n (problem size)")
+    plt.xlabel("Number of keys (n)")
     plt.ylabel(ylabel)
     plt.title(title)
 
