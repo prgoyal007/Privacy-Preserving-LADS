@@ -3,9 +3,42 @@ from typing import List, Dict, Any, Optional
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 ds_names = ["RobustSL", "ThresholdZipZipTree", "BiasedZipZipTree", "CTreap", "LTreap", "AVL"]
 n_values = [100, 500, 1000, 2000]
+
+
+# Publication-like rc styling 
+mpl.rcParams.update({
+    "font.family": "serif",
+    "font.serif": ["Times New Roman", "Times", "DejaVu Serif"],
+    "font.size": 10,
+    "axes.titlesize": 12,
+    "axes.labelsize": 10,
+    "xtick.labelsize": 9,
+    "ytick.labelsize": 9,
+    "legend.fontsize": 9,
+    "figure.titlesize": 14,
+    "axes.linewidth": 0.8,
+    "xtick.direction": "out",
+    "ytick.direction": "out",
+    "axes.grid": False,
+})
+
+
+# Color palette (similar to RobustSL paper look)
+color_map = {
+    "RobustSL": "#2A73C7",            # blue
+    "ThresholdZipZipTree": "#F2C57C", # warm tan
+    "BiasedZipZipTree": "#9ACD9A",    # light green
+    "CTreap": "#E6A0C4",              # light pink
+    "LTreap": "#C0C0F0",              # pale purple
+    "AVL": "#E8B4A2",                 # salmon
+}
+
+# fallback palette if dataset missing
+default_colors = ["#2A73C7", "#9ACD9A", "#E6A0C4", "#C0C0F0", "#E8B4A2", "#F2C57C"]
 
 
 def _alpha_to_fname_part(alpha: float) -> str:
@@ -111,89 +144,107 @@ def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
                      title: str,
                      ylabel: str,
                      ds_order: Optional[List[str]] = None,
-                     annotate_threshold: Optional[float] = None):
+                     annotate_threshold: Optional[float] = None,
+                     save_path: Optional[str] = None):
 
     if ds_order is None:
         ds_order_local = list(avg_costs_per_n.keys())
     else:
         ds_order_local = ds_order
 
+    # Build DataFrame: columsn are datasets, rows are n_values
     df = pd.DataFrame(
-        {ds: avg_costs_per_n.get(ds, {}).get(n, np.nan) for n in n_values for ds in ds_order_local},
+        {ds: [avg_costs_per_n.get(ds, {}).get(n, np.nan) for n in n_values]
+         for ds in ds_order_local},
         index=n_values
     )
 
     num_groups = len(n_values)
     num_ds = len(ds_order_local)
 
-    # Horizontal spacing params
-    group_gap = 1.3
-    group_width = 0.6
-    width = group_width / max(1, num_ds)
+    # Visual spacing tuning for narrow bars
+    group_gap = 1.5
+    group_width = 0.45
+    bar_width = group_width / max(1, num_ds)
 
-    # x positions for group centers
-    x = np.arange(num_groups) * group_gap
+    # centers for each group
+    x_centers = np.arange(num_groups) * group_gap
 
-    # hatch patterns (one per dataset)
-    patterns = ["/", "o", "|", "x", "+", "*", "\\", "O", ".", "-"]
+    # hatch patterns for datasets 
+    hatch_patterns = ["/", "o", "|", "x", "+", "*", "\\", "O", ".", "-"]
+    hatches = [hatch_patterns[i % len(hatch_patterns)] for i in range(num_ds)]
 
-    # ensure we have as many hatches as we need
-    hatches = [patterns[i % len(patterns)] for i in range(num_ds)]
+    plt.figure(figsize=(10, 3.2))
 
-    plt.figure(figsize=(10, 6))
+    # suble background stripe for readability 
+    ax = plt.gca()
 
-    bars_handles = []
+     # offsets to center dataset bars around the group center
+    offsets = (np.arange(num_ds) - (num_ds - 1) / 2.0) * bar_width
 
-    # offsets to center the dataset bars around the group center
-    offsets = (np.arange(num_ds) - (num_ds - 1) / 2.0) * width
+    bars_containers = []
 
     # For visual consistency, convert missing values (np.nan) to 0 for plotting,
     # but annotate or warn about missing values.
     for i, ds in enumerate(ds_order_local):
-        heights = df[ds].values.astype(float)
+        raw_heights = df[ds].values.astype(float)
         
         # replace NaN with 0 for plotting, but keep NaN logic for warnings
-        nan_mask = np.isnan(heights)
+        nan_mask = np.isnan(raw_heights)
         
         if nan_mask.any():
-            print(f"Warning: missing values for dataset '{ds}' at n = {[n for n, m in zip(n_values, nan_mask) if m]} (plotted as 0).")
-            heights_plot = np.where(nan_mask, 0.0, heights)
-        else:
-            heights_plot = heights
+            print(f"Warning: missing values for '{ds}' at n = {[n for n, m in zip(n_values, nan_mask) if m]} (plotted as 0).")
+        heights = np.where(nan_mask, 0.0, raw_heights)
 
-        xpos = x + offsets[i]
-        bars = plt.bar(xpos, heights_plot, width=width, label=ds,
-                       edgecolor='black', hatch=hatches[i], zorder=3)
+        # choose color
+        color = color_map.get(ds, default_colors[i % len(default_colors)])
+        xpos = x_centers + offsets[i]
 
-        bars_handles.append(bars)
+        bars = ax.bar(xpos, heights, width=bar_width, 
+                      color=color, edgecolor='black', linewidth=0.6,
+                      hatch=hatches[i], zorder=3)
+        
+        bars_containers.append(bars)
 
-        # annotate bar values (small) unless annotate_threshold used for special color
-        for bar, h in zip(bars, heights_plot):
-            if annotate_threshold is not None:
-                if h > annotate_threshold:
-                    plt.text(bar.get_x() + bar.get_width() / 2,
-                             h + 0.5,
-                             f"{h:.1f}", ha='center', va='bottom', fontsize=8, rotation=90, color='red')
-            else:
-                # only annotate non-zero bars to reduce clutter
-                if h > 0:
-                    plt.text(bar.get_x() + bar.get_width() / 2,
-                             h + 0.2,
-                             f"{h:.1f}", ha='center', va='bottom', fontsize=7, rotation=90)
+        # annotate bar values (small, rotated)
+        for bar, h in zip(bars, heights):
+            if h > 0:
+                if annotate_threshold is not None and h > annotate_threshold:
+                    ax.text(bar.get_x() + bar.get_width() / 2, h + 0.8, f"{h:.1f}",
+                            ha='center', va='bottom', fontsize=8, color='red', rotation=90)
+                else:
+                    ax.text(bar.get_x() + bar.get_width() / 2, h + 0.25, f"{h:.1f}",
+                            ha='center', va='bottom', fontsize=7, rotation=90)
 
-    # X-axis: show n-level labels centered under each group
-    plt.xticks(x, [str(n) for n in n_values])
-    plt.xlabel("Number of keys (n)")
-    plt.ylabel(ylabel)
-    plt.title(title)
+    # Labels and ticks
+    ax.set_xticks(x_centers)
+    ax.set_xticklabels([str(n) for n in n_values])
+    ax.set_xlabel("Number of keys (n)")
+    ax.set_ylabel(ylabel)
+    ax.set_title(title, pad=12, weight="bold")
 
-    # Legend: one entry per dataset (extract first patch for each dataset)
-    # create a list of handles (one handle per dataset) for legend
-    first_handles = [h[0] for h in bars_handles]
-    plt.legend(first_handles, ds_order_local, title="Data Structure", bbox_to_anchor=(1.02, 1), loc='upper left')
+    # Grid and spines: light horizontal gridlines, thin spines
+    ax.grid(axis="y", linestyle=":", linewidth=0.6, zorder=0)
+    ax.set_axisbelow(True)
+    for spine in ["top", "right"]:
+        ax.spines[spine].set_visible(False)
+    ax.spines["left"].set_linewidth(0.8)
+    ax.spines["bottom"].set_linewidth(0.8)
 
-    plt.grid(axis='y', linestyle=':', zorder=0)
-    plt.tight_layout()
+    # Custom legend: use patches with hatch+color so legend matches bars
+    patches = []
+    for i, ds in enumerate(ds_order_local):
+        color = color_map.get(ds, default_colors[i % len(default_colors)])
+        patch = mpl.patches.Patch(facecolor=color, edgecolor="black", hatch=hatches[i], label=ds)
+        patches.append(patch)
+
+    # place legend above the plot like the paper example
+    ax.legend(handles=patches, ncol=min(6, num_ds), frameon=False, loc="upper center", bbox_to_anchor=(0.5, 1.25))
+
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
+
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
     plt.show()
 
 
@@ -202,35 +253,68 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
                               ds_names: List[str],
                               title: str,
                               ylabel: str,
-                              annotate_threshold: Optional[float] = None):
+                              annotate_threshold: Optional[float] = None,
+                              save_path: Optional[str] = None):
     
-    x = np.arange(len(alpha_values))
-    width = 0.8 / max(1, len(ds_names))
+    # Build DataFrame: columns = datasets, rows = alpha values
+    ds_order_local = ds_names
+    df = pd.DataFrame(
+        {ds: [avg_costs_per_alpha.get(alpha, {}).get(ds, np.nan) for alpha in alpha_values]
+         for ds in ds_order_local},
+        index=[_alpha_to_fname_part(a) for a in alpha_values]
+    )
 
-    plt.figure(figsize=(10, 6))
+    num_groups = len(alpha_values)
+    num_ds = len(ds_order_local)
+    group_gap = 1.5
+    group_width = 0.45
+    bar_width = group_width / max(1, num_ds)
+    x_centers = np.arange(num_groups) * group_gap
+    hatch_patterns = ["/", "o", "|", "x", "+", "*", "\\", "O", ".", "-"]
+    hatches = [hatch_patterns[i % len(hatch_patterns)] for i in range(num_ds)]
 
-    for i, ds in enumerate(ds_names):
-        heights = []
-        for alpha in alpha_values:
-            v = avg_costs_per_alpha.get(alpha, {}).get(ds, np.nan)
-            heights.append(0.0 if (isinstance(v, float) and math.isnan(v)) else v)
+    plt.figure(figsize=(10, 3.2))
+    ax = plt.gca()
+    offsets = (np.arange(num_ds) - (num_ds - 1) / 2.0) * bar_width
 
-        bars = plt.bar(x + i * width, heights, width=width, label=ds)
 
-        for bar, h in zip(bars, heights):
-            if annotate_threshold is not None and h > annotate_threshold:
-                plt.text(bar.get_x() + bar.get_width() / 2, h + 0.5,
-                         f"{h:.1f}", ha='center', va='bottom', fontsize=8, rotation=90, color='red')
+    for i, ds in enumerate(ds_order_local):
+        raw = df[ds].values.astype(float)
+        nan_mask = np.isnan(raw)
+        heights = np.where(nan_mask, 0.0, raw)
+        if nan_mask.any():
+            print(f"Warning: missing values for '{ds}' at alphas = {[a for a, m in zip(alpha_values, nan_mask) if m]}")
+        color = color_map.get(ds, default_colors[i % len(default_colors)])
+        xpos = x_centers + offsets[i]
+        bars = ax.bar(xpos, heights, width=bar_width, color=color, edgecolor="black", hatch=hatches[i], linewidth=0.6, zorder=3)
+        for b, h in zip(bars, heights):
+            if h > 0:
+                if annotate_threshold is not None and h > annotate_threshold:
+                    ax.text(b.get_x() + b.get_width() / 2, h + 0.8, f"{h:.1f}", ha='center', va='bottom', fontsize=8, color='red', rotation=90)
+                else:
+                    ax.text(b.get_x() + b.get_width() / 2, h + 0.25, f"{h:.1f}", ha='center', va='bottom', fontsize=7, rotation=90)
+                        
+    ax.set_xticks(x_centers)
+    ax.set_xticklabels(df.index)
+    ax.set_xlabel("Zipf parameter α")
+    ax.set_ylabel(ylabel)
+    ax.set_title(title, pad=12, weight="bold")
+    ax.grid(axis="y", linestyle=":", linewidth=0.6, zorder=0)
+    for spine in ["top", "right"]:
+        ax.spines[spine].set_visible(False)
 
-    # x-axis labels should be the formatted alpha parts (1, 1.25, 1.5, 2, ...)
-    alpha_labels = [_alpha_to_fname_part(a) for a in alpha_values]
-    plt.xticks(x + width * (len(ds_names) - 1) / 2, alpha_labels)
-    plt.xlabel("Zipf parameter α")
-    plt.ylabel(ylabel)
-    plt.title(title)
-    plt.legend()
-    plt.tight_layout()
+    # legend
+    patches = [mpl.patches.Patch(facecolor=color_map.get(ds, default_colors[i % len(default_colors)]),
+                                edgecolor="black", hatch=hatches[i], label=ds)
+            for i, ds in enumerate(ds_order_local)]
+    ax.legend(handles=patches, ncol=min(6, num_ds), frameon=False, loc="upper center", bbox_to_anchor=(0.5, 1.25))
+
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+    
     plt.show()
+
 
 
 if __name__ == "__main__":
