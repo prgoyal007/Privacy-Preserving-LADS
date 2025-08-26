@@ -58,7 +58,7 @@ __path_dir__ = "results/ROTZipfianTest"
 for n in ns:
     for alpha in alphas:
         for idx, error in enumerate(errors):
-            print(f"n: {n}, alpha: {alpha}, Adversary Zipfian (δ={error})")
+            print(f"n: {n}, alpha: {alpha}, Randomized Zipfian (δ={error})")
 
             if __generate_data__:
                 if error == 0:
