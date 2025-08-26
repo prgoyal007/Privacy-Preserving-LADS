@@ -5,6 +5,7 @@ from structures.StaticRSL import *
 from structures.BiasedZipZipTree import *
 from structures.ThresholdZipZipTree import *
 from structures.LTreap import *
+from structures.CTreap import *
 from structures.AVLTree import *
 
 def TestDS(ds, ordered_elements, search_elements, path_to_save, true_search=False, __splay_cost__=False,
@@ -42,17 +43,17 @@ def read_data(path):
     with open(path) as reader:
         return json.load(reader)
 
-# Parameters for Adversarial Zipfian Test
-ns = [1000, 2000 ,5000]
+# Parameters for Zipfian Tests
+ns = [100, 500, 1000, 2000]
 alphas = [1, 1.25, 1.5, 2, 3]
-errors = [0, 0.01,  0.45, 0.9]
+errors = [0, 0.9]
 search_size = 100000
 
 __generate_data__ = True
 __test_samples__ = True
 
 trials = 10
-__path_dir__ = "results/AdvZipfianTest"
+__path_dir__ = "results/ZipfianTests"
 
 for n in ns:
     for alpha in alphas:
