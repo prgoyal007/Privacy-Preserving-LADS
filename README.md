@@ -38,9 +38,10 @@ python -m tests.{fileName}
 3. Replace `{fileName}` with the test script name without the `.py` extension.
 - Example:
 ```bash
-python -m tests.RPF_ZipfianTest
-python -m tests.RPT_ZipfianTest
+python -m tests.ROF_ZipfianTest
+python -m tests.ROT_ZipfianTest
 python -m tests.InversePowerTest
+python -m tests.SizeTest
 ```
 
 ## Why -m is used
