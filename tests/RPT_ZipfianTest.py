@@ -43,10 +43,10 @@ def read_data(path):
     with open(path) as reader:
         return json.load(reader)
 
-# Parameters for Zipfian Tests
+# Parameters for Zipfian Tests where Random Order = True
 ns = [100, 500, 1000, 2000]
-alphas = [1, 1.25, 1.5, 2, 3]
-errors = [0, 0.9]
+alphas = [2]
+errors = [0]
 search_size = 100000
 
 __generate_data__ = True
