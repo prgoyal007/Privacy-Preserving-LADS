@@ -53,7 +53,7 @@ __generate_data__ = True
 __test_samples__ = True
 
 trials = 10
-__path_dir__ = "results/ZipfianTests"
+__path_dir__ = "results/RPFZipfianTests"
 
 for n in ns:
     for alpha in alphas:
