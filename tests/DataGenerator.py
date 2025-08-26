@@ -214,8 +214,8 @@ def pessimistic_worst(n, search_size):
 # Requires α > 1, but should be small.
 def exponential_freq(n, ranks, error, alpha = 1.01):
     error_ranks = [ranks[i] * (1 - error) + error * (n - ranks[i] + 1) for i in range(n)]
-    key_values = list(range(n))
-    frequencies = [1 / (alpha) ** (i+1) for i in range(n)]
+    # key_values = list(range(n))
+    frequencies = [1 / (alpha) ** (i+1) for i in error_ranks]
     frequencies = np.array(frequencies) / np.sum(frequencies)
     # search_elements = np.random.choice(key_values, search_size, p=frequencies)
 
