@@ -11,14 +11,14 @@ n_values = [100, 500, 1000, 2000]
 
 # Publication-like rc styling 
 mpl.rcParams.update({
-    "font.family": "serif",
+    "font.family": "arial",
     "font.serif": ["Times New Roman", "Times", "DejaVu Serif"],
-    "font.size": 10,
-    "axes.titlesize": 12,
-    "axes.labelsize": 10,
-    "xtick.labelsize": 9,
-    "ytick.labelsize": 9,
-    "legend.fontsize": 9,
+    "font.size": 11,
+    "axes.titlesize": 13,
+    "axes.labelsize": 11,
+    "xtick.labelsize": 10,
+    "ytick.labelsize": 10,
+    "legend.fontsize": 10,
     "figure.titlesize": 14,
     "axes.linewidth": 0.8,
     "xtick.direction": "out",
@@ -145,14 +145,13 @@ def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
                      ylabel: str,
                      ds_order: Optional[List[str]] = None,
                      annotate_threshold: Optional[float] = None,
-                     save_path: Optional[str] = None):
-
+                     save_path: Optional[str] = None,
+                     ymax_cap: Optional[float] = None):
     if ds_order is None:
         ds_order_local = list(avg_costs_per_n.keys())
     else:
         ds_order_local = ds_order
 
-    # Build DataFrame: columsn are datasets, rows are n_values
     df = pd.DataFrame(
         {ds: [avg_costs_per_n.get(ds, {}).get(n, np.nan) for n in n_values]
          for ds in ds_order_local},
@@ -161,91 +160,72 @@ def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
 
     num_groups = len(n_values)
     num_ds = len(ds_order_local)
-
-    # Visual spacing tuning for narrow bars
     group_gap = 1.5
-    group_width = 0.45
+    group_width = 0.6
     bar_width = group_width / max(1, num_ds)
-
-    # centers for each group
     x_centers = np.arange(num_groups) * group_gap
-
-    # hatch patterns for datasets 
     hatch_patterns = ["/", "o", "|", "x", "+", "*", "\\", "O", ".", "-"]
     hatches = [hatch_patterns[i % len(hatch_patterns)] for i in range(num_ds)]
 
-    plt.figure(figsize=(10, 3.2))
-
-    # suble background stripe for readability 
+    plt.figure(figsize=(11, 6))
     ax = plt.gca()
-
-     # offsets to center dataset bars around the group center
     offsets = (np.arange(num_ds) - (num_ds - 1) / 2.0) * bar_width
 
-    bars_containers = []
+    # Auto-cap if none provided
+    all_values = df.to_numpy().flatten()
+    finite_vals = all_values[np.isfinite(all_values)]
+    if ymax_cap is None:
+        if finite_vals.size > 0:
+            ymax_cap = np.nanpercentile(finite_vals, 95) * 1.2
+        else:
+            ymax_cap = 1.0
 
-    # For visual consistency, convert missing values (np.nan) to 0 for plotting,
-    # but annotate or warn about missing values.
     for i, ds in enumerate(ds_order_local):
         raw_heights = df[ds].values.astype(float)
-        
-        # replace NaN with 0 for plotting, but keep NaN logic for warnings
         nan_mask = np.isnan(raw_heights)
-        
-        if nan_mask.any():
-            print(f"Warning: missing values for '{ds}' at n = {[n for n, m in zip(n_values, nan_mask) if m]} (plotted as 0).")
         heights = np.where(nan_mask, 0.0, raw_heights)
-
-        # choose color
         color = color_map.get(ds, default_colors[i % len(default_colors)])
         xpos = x_centers + offsets[i]
 
-        bars = ax.bar(xpos, heights, width=bar_width, 
-                      color=color, edgecolor='black', linewidth=0.6,
-                      hatch=hatches[i], zorder=3)
-        
-        bars_containers.append(bars)
+        bars = ax.bar(xpos, np.minimum(heights, ymax_cap),
+                      width=bar_width, color=color, edgecolor='black',
+                      linewidth=0.6, hatch=hatches[i], zorder=3)
 
-        # annotate bar values (small, rotated)
         for bar, h in zip(bars, heights):
-            if h > 0:
-                if annotate_threshold is not None and h > annotate_threshold:
-                    ax.text(bar.get_x() + bar.get_width() / 2, h + 0.8, f"{h:.1f}",
-                            ha='center', va='bottom', fontsize=8, color='red', rotation=90)
-                else:
-                    ax.text(bar.get_x() + bar.get_width() / 2, h + 0.25, f"{h:.1f}",
-                            ha='center', va='bottom', fontsize=7, rotation=90)
+            if h > ymax_cap:
+                ax.text(bar.get_x() + bar.get_width() / 2, ymax_cap * 1.01,
+                        f"{h:.1f}", ha='center', va='bottom',
+                        fontsize=10, color='red', rotation=0,
+                        clip_on=False)
+            # elif h > 0:
+            #     # COMMENTED OUT BECAUSE OF CLUTTERED TEXTS ABOVE NORMAL BARS
 
-    # Labels and ticks
+            #     # ax.text(bar.get_x() + bar.get_width() / 2, h + 0.25,
+            #     #         f"{h:.1f}", ha='center', va='bottom',
+            #     #         fontsize=8, rotation=0)
+
+    ax.set_ylim(0, ymax_cap * 1.1)
     ax.set_xticks(x_centers)
     ax.set_xticklabels([str(n) for n in n_values])
     ax.set_xlabel("Number of keys (n)")
     ax.set_ylabel(ylabel)
     ax.set_title(title, pad=12, weight="bold")
-
-    # Grid and spines: light horizontal gridlines, thin spines
     ax.grid(axis="y", linestyle=":", linewidth=0.6, zorder=0)
-    ax.set_axisbelow(True)
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
-    ax.spines["left"].set_linewidth(0.8)
-    ax.spines["bottom"].set_linewidth(0.8)
 
-    # Custom legend: use patches with hatch+color so legend matches bars
-    patches = []
-    for i, ds in enumerate(ds_order_local):
-        color = color_map.get(ds, default_colors[i % len(default_colors)])
-        patch = mpl.patches.Patch(facecolor=color, edgecolor="black", hatch=hatches[i], label=ds)
-        patches.append(patch)
+    patches = [mpl.patches.Patch(facecolor=color_map.get(ds, default_colors[i % len(default_colors)]),
+                                 edgecolor="black", hatch=hatches[i], label=ds)
+               for i, ds in enumerate(ds_order_local)]
+    ax.legend(handles=patches, ncol=min(6, num_ds), frameon=False,
+              loc="upper center", bbox_to_anchor=(0.5, 1.18))
 
-    # place legend above the plot like the paper example
-    ax.legend(handles=patches, ncol=min(6, num_ds), frameon=False, loc="upper center", bbox_to_anchor=(0.5, 1.25))
-
-    plt.tight_layout(rect=[0, 0, 1, 0.95])
-
+    plt.tight_layout(rect=[0, 0, 1, 0.97])
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
     plt.show()
+
+
 
 
 def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]],
@@ -254,9 +234,8 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
                               title: str,
                               ylabel: str,
                               annotate_threshold: Optional[float] = None,
-                              save_path: Optional[str] = None):
-    
-    # Build DataFrame: columns = datasets, rows = alpha values
+                              save_path: Optional[str] = None,
+                              ymax_cap: Optional[float] = None):
     ds_order_local = ds_names
     df = pd.DataFrame(
         {ds: [avg_costs_per_alpha.get(alpha, {}).get(ds, np.nan) for alpha in alpha_values]
@@ -267,33 +246,42 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
     num_groups = len(alpha_values)
     num_ds = len(ds_order_local)
     group_gap = 1.5
-    group_width = 0.45
+    group_width = 0.6
     bar_width = group_width / max(1, num_ds)
     x_centers = np.arange(num_groups) * group_gap
     hatch_patterns = ["/", "o", "|", "x", "+", "*", "\\", "O", ".", "-"]
     hatches = [hatch_patterns[i % len(hatch_patterns)] for i in range(num_ds)]
 
-    plt.figure(figsize=(10, 3.2))
+    plt.figure(figsize=(10, 6))
     ax = plt.gca()
     offsets = (np.arange(num_ds) - (num_ds - 1) / 2.0) * bar_width
 
+    all_values = df.to_numpy().flatten()
+    finite_vals = all_values[np.isfinite(all_values)]
+    if ymax_cap is None:
+        ymax_cap = np.nanmax(finite_vals) * 1.2 if finite_vals.size > 0 else 1.0
 
     for i, ds in enumerate(ds_order_local):
         raw = df[ds].values.astype(float)
         nan_mask = np.isnan(raw)
         heights = np.where(nan_mask, 0.0, raw)
-        if nan_mask.any():
-            print(f"Warning: missing values for '{ds}' at alphas = {[a for a, m in zip(alpha_values, nan_mask) if m]}")
         color = color_map.get(ds, default_colors[i % len(default_colors)])
         xpos = x_centers + offsets[i]
-        bars = ax.bar(xpos, heights, width=bar_width, color=color, edgecolor="black", hatch=hatches[i], linewidth=0.6, zorder=3)
+        bars = ax.bar(xpos, np.minimum(heights, ymax_cap),
+                      width=bar_width, color=color, edgecolor="black",
+                      hatch=hatches[i], linewidth=0.6, zorder=3)
         for b, h in zip(bars, heights):
-            if h > 0:
-                if annotate_threshold is not None and h > annotate_threshold:
-                    ax.text(b.get_x() + b.get_width() / 2, h + 0.8, f"{h:.1f}", ha='center', va='bottom', fontsize=8, color='red', rotation=90)
-                else:
-                    ax.text(b.get_x() + b.get_width() / 2, h + 0.25, f"{h:.1f}", ha='center', va='bottom', fontsize=7, rotation=90)
-                        
+            if h > ymax_cap:
+                ax.text(b.get_x() + b.get_width() / 2, ymax_cap * 1.01,
+                        f"{h:.1f}", ha='center', va='bottom',
+                        fontsize=10, color='red', rotation=0,
+                        clip_on=False)
+            # elif h > 0:
+            #     # ax.text(b.get_x() + b.get_width() / 2, h + 0.25,
+            #     #         f"{h:.1f}", ha='center', va='bottom',
+            #     #         fontsize=8, rotation=0)
+
+    ax.set_ylim(0, ymax_cap * 1.1)
     ax.set_xticks(x_centers)
     ax.set_xticklabels(df.index)
     ax.set_xlabel("Zipf parameter α")
@@ -303,17 +291,17 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
 
-    # legend
     patches = [mpl.patches.Patch(facecolor=color_map.get(ds, default_colors[i % len(default_colors)]),
-                                edgecolor="black", hatch=hatches[i], label=ds)
-            for i, ds in enumerate(ds_order_local)]
-    ax.legend(handles=patches, ncol=min(6, num_ds), frameon=False, loc="upper center", bbox_to_anchor=(0.5, 1.25))
+                                 edgecolor="black", hatch=hatches[i], label=ds)
+               for i, ds in enumerate(ds_order_local)]
+    ax.legend(handles=patches, ncol=min(6, num_ds), frameon=False,
+              loc="upper center", bbox_to_anchor=(0.5, 1.25))
 
     plt.tight_layout(rect=[0, 0, 1, 0.95])
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
-    
     plt.show()
+
 
 
 
@@ -324,14 +312,12 @@ if __name__ == "__main__":
     # Test 1 (α=2, δ=0) - ROTZipfianTest
     path_rot = os.path.join(results_dir, "ROTZipfianTest")
     avg_rot = load_avg_costs(path_rot, ds_names, n_values, alpha_values=[2.0])
-    # avg_rot[2.0][0.0] is mapping ds -> { n -> value }
     plot_grouped_bar({ds: {n: avg_rot[2.0][0.0].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
                      n_values,
                      "Standard Zipfian Test (α=2, δ=0)",
                      "Avg. # of Comparisons per Query",
                      ds_order=ds_names,
-                     annotate_threshold=25)
-
+                     annotate_threshold=25)  # auto-scale
 
     # Test 2 (α=2, δ=0.9) - ROFZipfianTest
     path_rof = os.path.join(results_dir, "ROFZipfianTest")
@@ -341,7 +327,8 @@ if __name__ == "__main__":
                      "Non-randomized Zipfian Test (α=2, δ=0.9)",
                      "Avg. # of Comparisons per Query",
                      ds_order=ds_names,
-                     annotate_threshold=25)
+                     annotate_threshold=25,
+                     ymax_cap=50)
 
     # Test 3 (α varies, n=2000, δ=0)
     alpha_sweep = [1, 1.25, 1.5, 2, 3]
@@ -350,23 +337,25 @@ if __name__ == "__main__":
     plot_zipf_parameter_sweep(avg_alpha_flat, alpha_sweep, ds_names,
                               "Impact of Zipf Parameter α on DS Performance (n=2000, δ=0)",
                               "Avg. # of Comparisons per Query",
-                              annotate_threshold=25)
-
+                              annotate_threshold=25,
+                              ymax_cap=20)
 
     # Test 4 (α=1.01, δ=0,0.9) - InversePowerTest
     path_ip = os.path.join(results_dir, "InversePowerTest")
     avg_ip = load_avg_costs(path_ip, ds_names, n_values, alpha_values=[1.01], error_values=[0.0, 0.9])
     
-    # plot both δ=0 and δ=0.9
     plot_grouped_bar({ds: {n: avg_ip[1.01][0.0].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
                      n_values,
                      "Inverse Power Distribution Test (α=1.01, δ=0.0)",
                      "Avg. # of Comparisons per Query",
                      ds_order=ds_names,
-                     annotate_threshold=25)
+                     annotate_threshold=25,
+                     ymax_cap=25)
+
     plot_grouped_bar({ds: {n: avg_ip[1.01][0.9].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
                      n_values,
                      "Inverse Power Distribution Test (α=1.01, δ=0.9)",
                      "Avg. # of Comparisons per Query",
                      ds_order=ds_names,
-                     annotate_threshold=25)
+                     annotate_threshold=25,
+                     ymax_cap=25)
