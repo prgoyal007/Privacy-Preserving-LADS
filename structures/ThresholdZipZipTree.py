@@ -23,8 +23,8 @@ class Thresholded_ZipZipTree:
 		self.size = 0	# number of nodes in the tree
 
 	def get_random_rank(self, freq: float = None) -> Rank:
-		#freq = max(freq/2, 1/(2 * self.capacity))
-		freq = max(freq, 1/(self.capacity)) # slightly more optimized?
+		freq = max(freq/2, 1/(2 * self.capacity))
+		#freq = max(freq, 1/(self.capacity)) # slightly more optimized?
 		
 		# Geometric Distribution: # of failures before the first success
 		geo_rank = 0
