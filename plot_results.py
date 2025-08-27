@@ -308,48 +308,111 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
 
-def load_avg_sizes(path_dir: str, n_values: List[int], alpha_values: List[float]) -> Dict[float, Dict[int, float]]:
+def load_avg_sizes(path_dir: str, n_values: List[int]) -> Dict[int, float]:
+    ds = "RobustSL"
+    alpha_part = "2"
     avg_sizes = {}
-    ds = "RobustSL"  # only this DS
-    
-    for alpha in alpha_values:
-        alpha_part = _alpha_to_fname_part(alpha)
-        avg_sizes[alpha] = {}
 
-        for n in n_values:
-            # candidate filename
-            fname = os.path.join(path_dir, f"{ds}_n{n}_a{alpha_part}.json")
-            if not os.path.exists(fname):
-                avg_sizes[alpha][n] = np.nan
-                continue
-            
+    for n in n_values:
+        fname = os.path.join(path_dir, f"{ds}_n{n}_e0_a{alpha_part}.json")
+        value = np.nan
+        if os.path.exists(fname):
             try:
-                with open(fname, 'r') as fh:
+                with open(fname, "r") as fh:
                     data = json.load(fh)
-                sizes = data.get("sizes", [])
-                avg_sizes[alpha][n] = float(np.mean(sizes)) if sizes else np.nan
+                sizes = data.get("size", [])
+                value = float(np.mean(sizes)) if sizes else np.nan
             except Exception:
-                avg_sizes[alpha][n] = np.nan
+                value = np.nan
+        else:
+            print(f"File not found: {fname}")
+
+        avg_sizes[n] = value
+
     return avg_sizes
 
-def plot_sizes(avg_sizes_per_n: Dict[int, float], n_values: List[int], title: str, ylabel: str, ax=None, ymax_cap: Optional[float] = None):
+
+
+def plot_sizes(avg_sizes_per_n: Dict[int, float], 
+                       n_values: List[int], 
+                       title: str, 
+                       ylabel: str, 
+                       ax=None, 
+                       ymax_cap: Optional[float] = None):
     if ax is None:
         ax = plt.gca()
     
     heights = [avg_sizes_per_n.get(n, np.nan) for n in n_values]
-    heights = np.array(heights)
-    
+    heights = np.array(heights, dtype=float)
+    finite_vals = heights[np.isfinite(heights)]
+
+    # Robust ymax_cap calculation
     if ymax_cap is None:
-        ymax_cap = np.nanpercentile(heights, 95) * 1.2 if heights.size > 0 else 1.0
-    
-    bars = ax.bar(np.arange(len(n_values)), np.minimum(heights, ymax_cap),
-                  color=color_map.get("RobustSL", "#0072B2"), edgecolor='black', width=0.6)
-    
-    for i, h in enumerate(heights):
-        if h > ymax_cap:
-            ax.text(i, ymax_cap, f"{h:.1f}", ha='center', va='bottom', color='red')
-    
-    ax.set_xticks(np.arange(len(n_values)))
+        if finite_vals.size > 0:
+            ymax_cap = np.nanpercentile(finite_vals, 95) * 1.2
+        else:
+            ymax_cap = 1.0  # fallback
+
+    x = np.arange(len(n_values))
+
+    # Split into baseline (n) and overhead (extra beyond n)
+    baseline = np.array(n_values, dtype=float)
+    overhead = np.where(heights > baseline, heights - baseline, 0.0)
+
+    # First bar (baseline, blue)
+    bars_base = ax.bar(x, np.minimum(baseline, ymax_cap),
+                       color=color_map.get("RobustSL", "#0072B2"),
+                       edgecolor="black", width=0.6, label="Baseline size (n) nodes")
+
+    # Second bar (overhead, stacked on baseline, red)
+    bars_over = ax.bar(x, np.minimum(overhead, ymax_cap - baseline),
+                       bottom=np.minimum(baseline, ymax_cap),
+                       color="red", edgecolor="black", width=0.6, label="Additional overhead")
+
+    # Annotate inside bars
+    for i, (b_base, b_over, h) in enumerate(zip(bars_base, bars_over, heights)):
+        if np.isfinite(h):
+            if i == 0:
+                # Special case: for the first bar, put annotations OUTSIDE
+                # Baseline label just above the bar
+                ax.text(b_base.get_x() + b_base.get_width()/2,
+                        b_base.get_height() + 0.2,
+                        f"{int(n_values[i])}",
+                        ha="center", va="bottom", fontsize=9, color="black", rotation=0)
+
+                # Overhead label just above total bar height
+                if overhead[i] > 0:
+                    ax.text(b_over.get_x() + b_over.get_width()/2,
+                            b_base.get_height() + b_over.get_height() + 500,
+                            f"{int(h)}",
+                            ha="center", va="bottom", fontsize=9, color="red", rotation=0)
+            elif i == 1:
+                # Same thing for second bar, but baseline label INSIDE
+                ax.text(b_base.get_x() + b_base.get_width()/2, 
+                        b_base.get_height()/2, 
+                        f"{int(n_values[i])}", 
+                        ha="center", va="center", fontsize=9, color="white", rotation=0)
+                
+                if overhead[i] > 0:
+                    ax.text(b_over.get_x() + b_over.get_width()/2,
+                            b_base.get_height() + b_over.get_height() + 25,
+                            f"{int(h)}",
+                            ha="center", va="bottom", fontsize=9, color="red", rotation=0)
+            else:
+                # All other bars keep annotations INSIDE
+                ax.text(b_base.get_x() + b_base.get_width()/2, 
+                        b_base.get_height()/2, 
+                        f"{int(n_values[i])}", 
+                        ha="center", va="center", fontsize=9, color="white", rotation=0)
+
+                if overhead[i] > 0:
+                    ax.text(b_over.get_x() + b_over.get_width()/2, 
+                            b_base.get_height() + b_over.get_height()/2, 
+                            f"{int(h)}", 
+                            ha="center", va="center", fontsize=9, color="white", rotation=0)
+
+
+    ax.set_xticks(x)
     ax.set_xticklabels([str(n) for n in n_values])
     ax.set_xlabel("Number of keys (n)")
     ax.set_ylabel(ylabel)
@@ -359,7 +422,7 @@ def plot_sizes(avg_sizes_per_n: Dict[int, float], n_values: List[int], title: st
         ax.spines[spine].set_visible(False)
     ax.set_ylim(0, ymax_cap * 1.1)
 
-
+    ax.legend(frameon=False, loc="upper left")
 
 
 
@@ -445,11 +508,14 @@ if __name__ == "__main__":
 
     # Plot sizes for RobustSL only
     sizes_dir = os.path.join(results_dir, "SizeTest")
-    avg_sizes = load_avg_sizes(sizes_dir, n_values, alpha_sweep)
+    n_values = [100, 500, 1000, 2000, 5000, 10000]
+    avg_sizes = load_avg_sizes(sizes_dir, n_values)
+    print("Loaded avg_sizes:", avg_sizes)
 
     fig, ax = plt.subplots(figsize=(8, 5))
-    plot_sizes(avg_sizes_per_n=avg_sizes[2.0], n_values=n_values,
-               title="Average Size of RobustSL",
-               ylabel="Avg. Number of Nodes per Tree",
-               ax=ax)
+    plot_sizes(avg_sizes_per_n=avg_sizes,
+            n_values=n_values,
+            title="Average Size of RobustSL (α=2)",
+            ylabel="Avg. Number of Nodes",
+            ax=ax)
     plt.show()
