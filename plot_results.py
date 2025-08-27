@@ -367,7 +367,7 @@ def plot_sizes(avg_sizes_per_n: Dict[int, float],
     # Second bar (overhead, stacked on baseline, red)
     bars_over = ax.bar(x, np.minimum(overhead, ymax_cap - baseline),
                        bottom=np.minimum(baseline, ymax_cap),
-                       color="red", edgecolor="black", width=0.6, label="Additional overhead")
+                       color=color_map.get("CTreap", "#CC79A7"), edgecolor="black", width=0.6, label="Additional overhead")
 
     # Annotate inside bars
     for i, (b_base, b_over, h) in enumerate(zip(bars_base, bars_over, heights)):
