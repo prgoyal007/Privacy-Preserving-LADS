@@ -437,7 +437,7 @@ if __name__ == "__main__":
     avg_rot = load_avg_costs(path_rot, ds_names, n_values, alpha_values=[2.0])
     plot_grouped_bar({ds: {n: avg_rot[2.0][0.0].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
                      n_values,
-                     "Standard Zipfian Test (α=2, δ=0)",
+                     "Ideal Zipfian Test (α=2, δ=0)",
                      "Avg. # of Comparisons per Query",
                      ax=axes1[0],
                      ds_order=ds_names,
@@ -449,7 +449,7 @@ if __name__ == "__main__":
     avg_rof = load_avg_costs(path_rof, ds_names, n_values, alpha_values=[2.0], error_values=[0.9])
     plot_grouped_bar({ds: {n: avg_rof[2.0][0.9].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
                      n_values,
-                     "Non-randomized Zipfian Test (α=2, δ=0.9)",
+                     "Noisy Zipfian Test (α=2, δ=0.9)",
                      "Avg. # of Comparisons per Query",
                      ax=axes1[1],
                      ds_order=ds_names,
@@ -508,7 +508,7 @@ if __name__ == "__main__":
 
     # Plot sizes for RobustSL only
     sizes_dir = os.path.join(results_dir, "SizeTest")
-    n_values = [100, 500, 1000, 2000, 5000, 10000]
+    n_values = [1000, 2000, 5000, 10000]
     avg_sizes = load_avg_sizes(sizes_dir, n_values)
     print("Loaded avg_sizes:", avg_sizes)
 
