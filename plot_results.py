@@ -174,7 +174,7 @@ def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
 
     num_groups = len(n_values)
     num_ds = len(ds_order_local)
-    group_gap = 1.5
+    group_gap = 1.0     #1.5
     group_width = 0.6
     bar_width = group_width / max(1, num_ds)
     x_centers = np.arange(num_groups) * group_gap
@@ -249,7 +249,7 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
 
     num_groups = len(alpha_values)
     num_ds = len(ds_order_local)
-    group_gap = 1.5
+    group_gap = 1.0     #1.5
     group_width = 0.6
     bar_width = group_width / max(1, num_ds)
     x_centers = np.arange(num_groups) * group_gap
