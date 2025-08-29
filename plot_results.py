@@ -256,7 +256,7 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
     # hatch_patterns = ["/", "o", "|", "x", "+", "*", "\\", "O", ".", "-"]
     # hatches = [hatch_patterns[i % len(hatch_patterns)] for i in range(num_ds)]
 
-    ax = plt.gca()
+    # ax = plt.gca()
     offsets = (np.arange(num_ds) - (num_ds - 1) / 2.0) * bar_width
 
     all_values = df.to_numpy().flatten()
@@ -447,19 +447,33 @@ if __name__ == "__main__":
     fig1, axes1 = plt.subplots(1, 3, figsize=(6 * 3, 5), sharey=False)
 
     # Test 1 (α=2, δ=0) - ROTZipfianTest
-    path_rot = os.path.join(results_dir, "ROTZipfianTest")
-    avg_rot = load_avg_costs(path_rot, ds_names, n_values, alpha_values=[2.0])
-    plot_grouped_bar({ds: {n: avg_rot[2.0][0.0].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
-                     n_values, 
-                     # title="Ideal Zipfian Test (α=2, δ=0)", 
-                     ylabel="Avg. # of Comparisons per Query",
-                     ax=axes1[0],
-                     ds_order=ds_names,
-                     annotate_threshold=25,
-                     ymax_cap=25)
+    # path_rot = os.path.join(results_dir, "ROTZipfianTest")
+    # avg_rot = load_avg_costs(path_rot, ds_names, n_values, alpha_values=[2.0])
+    # plot_grouped_bar({ds: {n: avg_rot[2.0][0.0].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
+    #                  n_values, 
+    #                  # title="Ideal Zipfian Test (α=2, δ=0)", 
+    #                  ylabel="Avg. # of Comparisons per Query",
+    #                  ax=axes1[0],
+    #                  ds_order=ds_names,
+    #                  annotate_threshold=25,
+    #                  ymax_cap=25)
+
+    path_rof = os.path.join(results_dir, "ROFZipfianTest")
+
+
+    # Test 3 (α varies, n=2000, δ=0)
+    alpha_sweep = [1, 1.25, 1.5, 2, 3]
+    avg_alpha = load_avg_costs(path_rof, ds_names, n_values=[2000], alpha_values=alpha_sweep, error_values=[0.0])
+    avg_alpha_flat = {alpha: {ds: avg_alpha[alpha][0.0].get(ds, {}).get(2000, np.nan) for ds in ds_names} for alpha in alpha_sweep}
+    plot_zipf_parameter_sweep(avg_alpha_flat, alpha_sweep, ds_names,
+                            # title="Impact of Zipf Parameter α\n on DS Performance (n=2000, δ=0)",
+                            ylabel="Avg. # of Comparisons per Query",
+                            ax=axes1[0],
+                            annotate_threshold=25,
+                            ymax_cap=25)
+
 
     # Test 2 (α=2, δ=0.9) - ROFZipfianTest
-    path_rof = os.path.join(results_dir, "ROFZipfianTest")
     avg_rof = load_avg_costs(path_rof, ds_names, n_values, alpha_values=[2.0], error_values=[0.9])
     plot_grouped_bar({ds: {n: avg_rof[2.0][0.9].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
                      n_values,
@@ -469,27 +483,6 @@ if __name__ == "__main__":
                      ds_order=ds_names,
                      annotate_threshold=25,
                      ymax_cap=25)
-
-    # Test 3 (α varies, n=2000, δ=0)
-    alpha_sweep = [1, 1.25, 1.5, 2, 3]
-    avg_alpha = load_avg_costs(path_rof, ds_names, n_values=[2000], alpha_values=alpha_sweep, error_values=[0.0])
-    avg_alpha_flat = {alpha: {ds: avg_alpha[alpha][0.0].get(ds, {}).get(2000, np.nan) for ds in ds_names} for alpha in alpha_sweep}
-    plot_zipf_parameter_sweep(avg_alpha_flat, alpha_sweep, ds_names,
-                              # title="Impact of Zipf Parameter α\n on DS Performance (n=2000, δ=0)",
-                              ylabel="Avg. # of Comparisons per Query",
-                              ax=axes1[2],
-                              annotate_threshold=25,
-                              ymax_cap=25)
-    
-    
-    # Global legend for Figure 1
-    handles, labels = axes1[0].get_legend_handles_labels()
-    plt.subplots_adjust(top=0.85, wspace=0.25)  # wider gap between subplots (wspace=0.35)
-    fig1.legend(handles, labels, ncol=6, frameon=False,
-                loc="upper center", bbox_to_anchor=(0.5, 0.95))
-    plt.show()
-
-    fig2, axes2 = plt.subplots(1, 2, figsize=(12, 5), sharey=False)
 
     # Test 4 (α=1.01, δ=0,0.9) - InversePowerTest
     path_ip = os.path.join(results_dir, "InversePowerTest")
@@ -509,37 +502,47 @@ if __name__ == "__main__":
                      n_values,
                      # title="Inverse Power Distribution Test (α=1.01, δ=0.9)",
                      ylabel="Avg. # of Comparisons per Query",
-                     ax=axes2[0],
+                     ax=axes1[2],
                      ds_order=ds_names,
                      annotate_threshold=25,
                      ymax_cap=25)
     
+    
+
+    
+    # Global legend for Figure 1
+    handles, labels = axes1[0].get_legend_handles_labels()
+    plt.subplots_adjust(top=0.85, wspace=0.25)  # wider gap between subplots (wspace=0.35)
+    fig1.legend(handles, labels, ncol=6, frameon=False,
+                loc="upper center", bbox_to_anchor=(0.5, 0.95))
+    plt.show()
+
+    # fig2, axes2 = plt.subplots(1, 2, figsize=(12, 5), sharey=False)    
+
+    # plot_sizes(avg_sizes_per_n=avg_sizes,
+    #            n_values=n_values,
+    #            #title="Average Size of RobustSL (α=2)",
+    #            ylabel="Avg. # of Nodes",
+    #            ax=axes2[1])
+    
+    # # Global legend for Figure 2
+    # handles, labels = axes2[0].get_legend_handles_labels()
+    # fig2.subplots_adjust(top=0.75, wspace=0.25)
+    # fig2.legend(handles, labels, ncol=6, frameon=False,
+    #             loc="upper center", bbox_to_anchor=(0.5, 0.89))
+    # # plt.tight_layout()
+    # plt.show()
+
     # Plot sizes for RobustSL only
     sizes_dir = os.path.join(results_dir, "SizeTest")
     n_values = [1000, 2000, 5000, 10000]
     avg_sizes = load_avg_sizes(sizes_dir, n_values)
     print("Loaded avg_sizes:", avg_sizes)
 
+    fig, ax = plt.subplots(figsize=(8, 5))
     plot_sizes(avg_sizes_per_n=avg_sizes,
-               n_values=n_values,
-               #title="Average Size of RobustSL (α=2)",
-               ylabel="Avg. # of Nodes",
-               ax=axes2[1])
-    
-    # Global legend for Figure 2
-    handles, labels = axes2[0].get_legend_handles_labels()
-    fig2.subplots_adjust(top=0.75, wspace=0.25)
-    fig2.legend(handles, labels, ncol=6, frameon=False,
-                loc="upper center", bbox_to_anchor=(0.5, 0.89))
-    # plt.tight_layout()
+            n_values=n_values,
+            # title="Average Size of RobustSL (α=2)",
+            ylabel="Avg. Number of Nodes",
+            ax=ax)
     plt.show()
-
-    # ----------------------------------------
-    # Commented out standalone size test graph
-    # fig, ax = plt.subplots(figsize=(8, 5))
-    # plot_sizes(avg_sizes_per_n=avg_sizes,
-    #         n_values=n_values,
-    #         title="Average Size of RobustSL (α=2)",
-    #         ylabel="Avg. Number of Nodes",
-    #         ax=ax)
-    # plt.show()
