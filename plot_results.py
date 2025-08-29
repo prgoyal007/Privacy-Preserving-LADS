@@ -178,8 +178,8 @@ def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
     group_width = 0.6
     bar_width = group_width / max(1, num_ds)
     x_centers = np.arange(num_groups) * group_gap
-    hatch_patterns = ["/", "o", "|", "x", "+", "*", "\\", "O", ".", "-"]
-    hatches = [hatch_patterns[i % len(hatch_patterns)] for i in range(num_ds)]
+    # hatch_patterns = ["/", "o", "|", "x", "+", "*", "\\", "O", ".", "-"]
+    # hatches = [hatch_patterns[i % len(hatch_patterns)] for i in range(num_ds)]
 
     offsets = (np.arange(num_ds) - (num_ds - 1) / 2.0) * bar_width
 
@@ -196,9 +196,13 @@ def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
         color = color_map.get(ds, default_colors[i % len(default_colors)])
         xpos = x_centers + offsets[i]
 
+        # bars = ax.bar(xpos, np.minimum(heights, ymax_cap),
+        #               width=bar_width, color=color, edgecolor='black',
+        #               linewidth=0.6, hatch=hatches[i], label=ds, zorder=3)
+
         bars = ax.bar(xpos, np.minimum(heights, ymax_cap),
                       width=bar_width, color=color, edgecolor='black',
-                      linewidth=0.6, hatch=hatches[i], label=ds, zorder=3)
+                      linewidth=0.6, label=ds, zorder=3)
 
         for bar, h, group_center in zip(bars, heights, x_centers):
             if h > ymax_cap:
@@ -249,8 +253,8 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
     group_width = 0.6
     bar_width = group_width / max(1, num_ds)
     x_centers = np.arange(num_groups) * group_gap
-    hatch_patterns = ["/", "o", "|", "x", "+", "*", "\\", "O", ".", "-"]
-    hatches = [hatch_patterns[i % len(hatch_patterns)] for i in range(num_ds)]
+    # hatch_patterns = ["/", "o", "|", "x", "+", "*", "\\", "O", ".", "-"]
+    # hatches = [hatch_patterns[i % len(hatch_patterns)] for i in range(num_ds)]
 
     ax = plt.gca()
     offsets = (np.arange(num_ds) - (num_ds - 1) / 2.0) * bar_width
@@ -269,9 +273,14 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
         heights = np.where(nan_mask, 0.0, raw)
         color = color_map.get(ds, default_colors[i % len(default_colors)])
         xpos = x_centers + offsets[i]
+        # bars = ax.bar(xpos, np.minimum(heights, ymax_cap),
+        #               width=bar_width, color=color, edgecolor="black",
+        #               hatch=hatches[i], linewidth=0.6, label=ds, zorder=3)
+
         bars = ax.bar(xpos, np.minimum(heights, ymax_cap),
                       width=bar_width, color=color, edgecolor="black",
-                      hatch=hatches[i], linewidth=0.6, label=ds, zorder=3)
+                      linewidth=0.6, label=ds, zorder=3)
+
 
         for bar, h, group_center in zip(bars, heights, x_centers):
             if h > ymax_cap:
