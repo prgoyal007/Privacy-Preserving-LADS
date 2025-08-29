@@ -378,47 +378,52 @@ def plot_sizes(avg_sizes_per_n: Dict[int, float],
                        bottom=np.minimum(baseline, ymax_cap),
                        color=color_map.get("CTreap", "#CC79A7"), edgecolor="black", width=0.6, label="Additional overhead")
 
+    
+    # ----------------------------------------------------
+    # Commented out annotations (no numbers drawn on bars)
+    #
     # Annotate inside bars
-    for i, (b_base, b_over, h) in enumerate(zip(bars_base, bars_over, heights)):
-        if np.isfinite(h):
-            if i == 0:
-                # Special case: for the first bar, put annotations OUTSIDE
-                # Baseline label just above the bar
-                ax.text(b_base.get_x() + b_base.get_width()/2,
-                        b_base.get_height() + 0.2,
-                        f"{int(n_values[i])}",
-                        ha="center", va="bottom", fontsize=9, color="black", rotation=0)
-
-                # Overhead label just above total bar height
-                if overhead[i] > 0:
-                    ax.text(b_over.get_x() + b_over.get_width()/2,
-                            b_base.get_height() + b_over.get_height() + 500,
-                            f"{int(h)}",
-                            ha="center", va="bottom", fontsize=9, color="red", rotation=0)
-            elif i == 1:
-                # Same thing for second bar, but baseline label INSIDE
-                ax.text(b_base.get_x() + b_base.get_width()/2, 
-                        b_base.get_height()/2, 
-                        f"{int(n_values[i])}", 
-                        ha="center", va="center", fontsize=9, color="white", rotation=0)
-                
-                if overhead[i] > 0:
-                    ax.text(b_over.get_x() + b_over.get_width()/2,
-                            b_base.get_height() + b_over.get_height() + 25,
-                            f"{int(h)}",
-                            ha="center", va="bottom", fontsize=9, color="red", rotation=0)
-            else:
-                # All other bars keep annotations INSIDE
-                ax.text(b_base.get_x() + b_base.get_width()/2, 
-                        b_base.get_height()/2, 
-                        f"{int(n_values[i])}", 
-                        ha="center", va="center", fontsize=9, color="white", rotation=0)
-
-                if overhead[i] > 0:
-                    ax.text(b_over.get_x() + b_over.get_width()/2, 
-                            b_base.get_height() + b_over.get_height()/2, 
-                            f"{int(h)}", 
-                            ha="center", va="center", fontsize=9, color="white", rotation=0)
+    # for i, (b_base, b_over, h) in enumerate(zip(bars_base, bars_over, heights)):
+    #     if np.isfinite(h):
+    #         if i == 0:
+    #             # Special case: for the first bar, put annotations OUTSIDE
+    #             # Baseline label just above the bar
+    #             ax.text(b_base.get_x() + b_base.get_width()/2,
+    #                     b_base.get_height() + 0.2,
+    #                     f"{int(n_values[i])}",
+    #                     ha="center", va="bottom", fontsize=9, color="black", rotation=0)
+    #
+    #             # Overhead label just above total bar height
+    #            if overhead[i] > 0:
+    #                 ax.text(b_over.get_x() + b_over.get_width()/2,
+    #                         b_base.get_height() + b_over.get_height() + 500,
+    #                         f"{int(h)}",
+    #                         ha="center", va="bottom", fontsize=9, color="red", rotation=0)
+    #         elif i == 1:
+    #             # Same thing for second bar, but baseline label INSIDE
+    #             ax.text(b_base.get_x() + b_base.get_width()/2, 
+    #                     b_base.get_height()/2, 
+    #                     f"{int(n_values[i])}", 
+    #                     ha="center", va="center", fontsize=9, color="white", rotation=0)
+    #             
+    #             if overhead[i] > 0:
+    #                 ax.text(b_over.get_x() + b_over.get_width()/2,
+    #                         b_base.get_height() + b_over.get_height() + 25,
+    #                         f"{int(h)}",
+    #                         ha="center", va="bottom", fontsize=9, color="red", rotation=0)
+    #         else:
+    #             # All other bars keep annotations INSIDE
+    #             ax.text(b_base.get_x() + b_base.get_width()/2, 
+    #                     b_base.get_height()/2, 
+    #                     f"{int(n_values[i])}", 
+    #                     ha="center", va="center", fontsize=9, color="white", rotation=0)
+    # 
+    #             if overhead[i] > 0:
+    #                 ax.text(b_over.get_x() + b_over.get_width()/2, 
+    #                         b_base.get_height() + b_over.get_height()/2, 
+    #                         f"{int(h)}", 
+    #                         ha="center", va="center", fontsize=9, color="white", rotation=0)
+    # ----------------------------------------------------
 
 
     ax.set_xticks(x)
