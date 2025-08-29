@@ -151,7 +151,7 @@ def load_avg_costs(path_dir: str,
 
 def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
                      n_values: List[int],
-                     title: str,
+                     # title: str,
                      ylabel: str,
                      ax=None,
                      ds_order: Optional[List[str]] = None,
@@ -220,7 +220,7 @@ def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
     ax.set_xticklabels([str(n) for n in n_values])
     ax.set_xlabel("Number of keys (n)")
     ax.set_ylabel(ylabel)
-    ax.set_title(title, pad=12, weight="bold")
+    # ax.set_title(title, pad=12, weight="bold")
     ax.grid(axis="y", linestyle=":", linewidth=0.6, zorder=0)
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
@@ -231,7 +231,7 @@ def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
 def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]],
                               alpha_values: List[float],
                               ds_names: List[str],
-                              title: str,
+                              # title: str,
                               ylabel: str,
                               ax=None,
                               annotate_threshold: Optional[float] = None,
@@ -302,7 +302,7 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
     ax.set_xticklabels(df.index)
     ax.set_xlabel("Zipf parameter α")
     ax.set_ylabel(ylabel)
-    ax.set_title(title, pad=12, weight="bold")
+    # ax.set_title(title, pad=12, weight="bold")
     ax.grid(axis="y", linestyle=":", linewidth=0.6, zorder=0)
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
@@ -344,7 +344,7 @@ def load_avg_sizes(path_dir: str, n_values: List[int]) -> Dict[int, float]:
 
 def plot_sizes(avg_sizes_per_n: Dict[int, float], 
                        n_values: List[int], 
-                       title: str, 
+                       # title: str, 
                        ylabel: str, 
                        ax=None, 
                        ymax_cap: Optional[float] = None):
@@ -430,7 +430,7 @@ def plot_sizes(avg_sizes_per_n: Dict[int, float],
     ax.set_xticklabels([str(n) for n in n_values])
     ax.set_xlabel("Number of keys (n)")
     ax.set_ylabel(ylabel)
-    ax.set_title(title, pad=12, weight="bold")
+    # ax.set_title(title, pad=12, weight="bold")
     ax.grid(axis="y", linestyle=":", linewidth=0.6)
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
@@ -451,8 +451,8 @@ if __name__ == "__main__":
     avg_rot = load_avg_costs(path_rot, ds_names, n_values, alpha_values=[2.0])
     plot_grouped_bar({ds: {n: avg_rot[2.0][0.0].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
                      n_values, 
-                     "Ideal Zipfian Test (α=2, δ=0)",
-                     "Avg. # of Comparisons per Query",
+                     # title="Ideal Zipfian Test (α=2, δ=0)", 
+                     ylabel="Avg. # of Comparisons per Query",
                      ax=axes1[0],
                      ds_order=ds_names,
                      annotate_threshold=25,
@@ -463,8 +463,8 @@ if __name__ == "__main__":
     avg_rof = load_avg_costs(path_rof, ds_names, n_values, alpha_values=[2.0], error_values=[0.9])
     plot_grouped_bar({ds: {n: avg_rof[2.0][0.9].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
                      n_values,
-                     "Noisy Zipfian Test (α=2, δ=0.9)",
-                     "Avg. # of Comparisons per Query",
+                     # title="Noisy Zipfian Test (α=2, δ=0.9)",
+                     ylabel="Avg. # of Comparisons per Query",
                      ax=axes1[1],
                      ds_order=ds_names,
                      annotate_threshold=25,
@@ -475,8 +475,8 @@ if __name__ == "__main__":
     avg_alpha = load_avg_costs(path_rof, ds_names, n_values=[2000], alpha_values=alpha_sweep, error_values=[0.0])
     avg_alpha_flat = {alpha: {ds: avg_alpha[alpha][0.0].get(ds, {}).get(2000, np.nan) for ds in ds_names} for alpha in alpha_sweep}
     plot_zipf_parameter_sweep(avg_alpha_flat, alpha_sweep, ds_names,
-                              "Impact of Zipf Parameter α\n on DS Performance (n=2000, δ=0)",
-                              "Avg. # of Comparisons per Query",
+                              # title="Impact of Zipf Parameter α\n on DS Performance (n=2000, δ=0)",
+                              ylabel="Avg. # of Comparisons per Query",
                               ax=axes1[2],
                               annotate_threshold=25,
                               ymax_cap=25)
@@ -484,7 +484,7 @@ if __name__ == "__main__":
     
     # Global legend for Figure 1
     handles, labels = axes1[0].get_legend_handles_labels()
-    plt.subplots_adjust(wspace=0.25)  # wider gap between subplots (wspace=0.35)
+    plt.subplots_adjust(top=0.85, wspace=0.25)  # wider gap between subplots (wspace=0.35)
     fig1.legend(handles, labels, ncol=6, frameon=False,
                 loc="upper center", bbox_to_anchor=(0.5, 0.95))
     plt.show()
@@ -507,8 +507,8 @@ if __name__ == "__main__":
 
     plot_grouped_bar({ds: {n: avg_ip[1.01][0.9].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
                      n_values,
-                     "Inverse Power Distribution Test (α=1.01, δ=0.9)",
-                     "Avg. # of Comparisons per Query",
+                     # title="Inverse Power Distribution Test (α=1.01, δ=0.9)",
+                     ylabel="Avg. # of Comparisons per Query",
                      ax=axes2[0],
                      ds_order=ds_names,
                      annotate_threshold=25,
@@ -522,7 +522,7 @@ if __name__ == "__main__":
 
     plot_sizes(avg_sizes_per_n=avg_sizes,
                n_values=n_values,
-               title="Average Size of RobustSL (α=2)",
+               #title="Average Size of RobustSL (α=2)",
                ylabel="Avg. # of Nodes",
                ax=axes2[1])
     
