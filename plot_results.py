@@ -450,7 +450,7 @@ if __name__ == "__main__":
     path_rot = os.path.join(results_dir, "ROTZipfianTest")
     avg_rot = load_avg_costs(path_rot, ds_names, n_values, alpha_values=[2.0])
     plot_grouped_bar({ds: {n: avg_rot[2.0][0.0].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
-                     n_values,
+                     n_values, 
                      "Ideal Zipfian Test (α=2, δ=0)",
                      "Avg. # of Comparisons per Query",
                      ax=axes1[0],
@@ -481,9 +481,10 @@ if __name__ == "__main__":
                               annotate_threshold=25,
                               ymax_cap=25)
     
+    
     # Global legend for Figure 1
     handles, labels = axes1[0].get_legend_handles_labels()
-    plt.subplots_adjust(wspace=0.35)  # wider gap between subplots
+    plt.subplots_adjust(wspace=0.25)  # wider gap between subplots (wspace=0.35)
     fig1.legend(handles, labels, ncol=6, frameon=False,
                 loc="upper center", bbox_to_anchor=(0.5, 0.95))
     plt.show()
@@ -492,44 +493,53 @@ if __name__ == "__main__":
 
     # Test 4 (α=1.01, δ=0,0.9) - InversePowerTest
     path_ip = os.path.join(results_dir, "InversePowerTest")
-    avg_ip = load_avg_costs(path_ip, ds_names, n_values, alpha_values=[1.01], error_values=[0.0, 0.9])
+    # avg_ip = load_avg_costs(path_ip, ds_names, n_values, alpha_values=[1.01], error_values=[0.0, 0.9])
+    avg_ip = load_avg_costs(path_ip, ds_names, n_values, alpha_values=[1.01], error_values=[0.9])
     
-    plot_grouped_bar({ds: {n: avg_ip[1.01][0.0].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
-                     n_values,
-                     "Inverse Power Distribution Test (α=1.01, δ=0.0)",
-                     "Avg. # of Comparisons per Query",
-                     ax=axes2[0],
-                     ds_order=ds_names,
-                     annotate_threshold=25,
-                     ymax_cap=25)
+    # plot_grouped_bar({ds: {n: avg_ip[1.01][0.0].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
+    #                     n_values,
+    #                     "Inverse Power Distribution Test (α=1.01, δ=0.0)",
+    #                     "Avg. # of Comparisons per Query",
+    #                     ax=axes2[0],
+    #                     ds_order=ds_names,
+    #                     annotate_threshold=25,
+    #                     ymax_cap=25)
 
     plot_grouped_bar({ds: {n: avg_ip[1.01][0.9].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
                      n_values,
                      "Inverse Power Distribution Test (α=1.01, δ=0.9)",
                      "Avg. # of Comparisons per Query",
-                     ax=axes2[1],
+                     ax=axes2[0],
                      ds_order=ds_names,
                      annotate_threshold=25,
                      ymax_cap=25)
-
-    # Global legend for Figure 2
-    handles, labels = axes2[0].get_legend_handles_labels()
-    fig2.subplots_adjust(top=0.75)
-    fig2.legend(handles, labels, ncol=6, frameon=False,
-                loc="upper center", bbox_to_anchor=(0.5, 0.89))
-    # plt.tight_layout()
-    plt.show()
-
+    
     # Plot sizes for RobustSL only
     sizes_dir = os.path.join(results_dir, "SizeTest")
     n_values = [1000, 2000, 5000, 10000]
     avg_sizes = load_avg_sizes(sizes_dir, n_values)
     print("Loaded avg_sizes:", avg_sizes)
 
-    fig, ax = plt.subplots(figsize=(8, 5))
     plot_sizes(avg_sizes_per_n=avg_sizes,
-            n_values=n_values,
-            title="Average Size of RobustSL (α=2)",
-            ylabel="Avg. Number of Nodes",
-            ax=ax)
+               n_values=n_values,
+               title="Average Size of RobustSL (α=2)",
+               ylabel="Avg. # of Nodes",
+               ax=axes2[1])
+    
+    # Global legend for Figure 2
+    handles, labels = axes2[0].get_legend_handles_labels()
+    fig2.subplots_adjust(top=0.75, wspace=0.25)
+    fig2.legend(handles, labels, ncol=6, frameon=False,
+                loc="upper center", bbox_to_anchor=(0.5, 0.89))
+    # plt.tight_layout()
     plt.show()
+
+    # ----------------------------------------
+    # Commented out standalone size test graph
+    # fig, ax = plt.subplots(figsize=(8, 5))
+    # plot_sizes(avg_sizes_per_n=avg_sizes,
+    #         n_values=n_values,
+    #         title="Average Size of RobustSL (α=2)",
+    #         ylabel="Avg. Number of Nodes",
+    #         ax=ax)
+    # plt.show()
