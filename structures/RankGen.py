@@ -16,8 +16,8 @@ def get_geo_rank():
 
 # Bias ranks towards a frequency distribution.
 # See https://arxiv.org/abs/2307.07660
-def bias_rank(rank, freq, cap, thresholded=False):
+def bias_rank(rank, freq, cap, pow=1, thresholded=False):
   if thresholded:
-    freq = max(freq/2, 1/(2 * cap))
+    freq = max(freq/2, 1/(2 * (cap ** pow)))
   
   return rank + math.floor(math.log2(freq * cap))
