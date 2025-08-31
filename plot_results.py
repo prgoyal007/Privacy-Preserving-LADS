@@ -7,6 +7,10 @@ import matplotlib as mpl
 
 ds_names = ["RobustSL", "ThresholdZipZipTree", "BiasedZipZipTree", "CTreap", "LTreap", "AVL"]
 n_values = [100, 500, 1000, 2000]
+label_names = {
+    "CTreap": "C-Treap",
+    "LTreap": "L-Treap",
+}
 
 
 # Publication-like rc styling 
@@ -15,10 +19,10 @@ mpl.rcParams.update({
     "font.serif": ["Times New Roman", "Times", "DejaVu Serif"],
     "font.size": 11,
     "axes.titlesize": 13,
-    "axes.labelsize": 11,
-    "xtick.labelsize": 10,
-    "ytick.labelsize": 10,
-    "legend.fontsize": 10,
+    "axes.labelsize": 12,
+    "xtick.labelsize": 13,
+    "ytick.labelsize": 13,
+    "legend.fontsize": 12,
     "figure.titlesize": 14,
     "axes.linewidth": 0.8,
     "xtick.direction": "out",
@@ -209,10 +213,10 @@ def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
                 ypos = min(h, ymax_cap)
                 if overflow_tracker[group_center] == 0:
                     ax.text(bar.get_x() - 0.05, ypos - 0.5, f"{h:.1f}",
-                            ha='right', va='center', fontsize=10, color='red', clip_on=False)
+                            ha='right', va='center', fontsize=11, color='red', clip_on=False)
                 else:
                     ax.text(bar.get_x() + bar.get_width() + 0.05, ypos - 0.5, f"{h:.1f}",
-                            ha='left', va='center', fontsize=10, color='red', clip_on=False)
+                            ha='left', va='center', fontsize=11, color='red', clip_on=False)
                 overflow_tracker[group_center] += 1
 
     ax.set_ylim(0, ymax_cap * 1.1)
@@ -289,12 +293,12 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
                     # First overflow → place LEFT
                     ax.text(bar.get_x() - 0.1, ypos - 0.5,
                             f"{h:.1f}", ha='right', va='center',
-                            fontsize=10, color='red', clip_on=False)
+                            fontsize=11, color='red', clip_on=False)
                 else:
                     # Second overflow → place RIGHT
                     ax.text(bar.get_x() + bar.get_width() + 0.1, ypos - 0.5,
                             f"{h:.1f}", ha='left', va='center',
-                            fontsize=10, color='red', clip_on=False)
+                            fontsize=11, color='red', clip_on=False)
                 overflow_tracker[group_center] += 1
 
     ax.set_ylim(0, ymax_cap * 1.1)
@@ -376,7 +380,7 @@ def plot_sizes(avg_sizes_per_n: Dict[int, float],
     # Second bar (overhead, stacked on baseline, red)
     bars_over = ax.bar(x, np.minimum(overhead, ymax_cap - baseline),
                        bottom=np.minimum(baseline, ymax_cap),
-                       color=color_map.get("CTreap", "#CC79A7"), edgecolor="black", width=0.6, label="Additional overhead")
+                       color=color_map.get("C-Treap", "#CC79A7"), edgecolor="black", width=0.6, label="Additional overhead")
 
     
     # ----------------------------------------------------
@@ -512,6 +516,7 @@ if __name__ == "__main__":
     
     # Global legend for Figure 1
     handles, labels = axes1[0].get_legend_handles_labels()
+    labels = [label_names.get(lbl, lbl) for lbl in labels]
     plt.subplots_adjust(top=0.85, wspace=0.25)  # wider gap between subplots (wspace=0.35)
     fig1.legend(handles, labels, ncol=6, frameon=False,
                 loc="upper center", bbox_to_anchor=(0.5, 0.95))
