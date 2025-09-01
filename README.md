@@ -1,4 +1,4 @@
-# Privacy-Preserving Learning-Augmented Data Structures
+# Incomplete Github Repo - Privacy-Preserving Learning-Augmented Data Structures
 This repository contains the experimental code, data structures, benchmarks, and figures accompanying the paper:
 
 **Privacy-Preserving Learning-Augmented Data Structures**
