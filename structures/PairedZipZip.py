@@ -80,7 +80,7 @@ class PairedZipZipTree:
 	def find_with_cost(self, key: KeyType): 
     	n = self.biased_zip.get_size()
     	found, cost1 = self.biased_zip.find_with_cost(key, self.limit_walk * math.floor(math.log2(n)))
-    	if found == False:
+    	if found is False:
       		true_found, cost2 = self.standard_zip.find_with_cost(key)
     	total_cost = cost1 + cost2
 
