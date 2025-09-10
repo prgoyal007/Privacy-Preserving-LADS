@@ -2,8 +2,6 @@ import json
 
 from tests.DataGenerator import *
 from structures.StaticRSL import *
-from structures.BiasedZipZipTree import *
-from structures.ThresholdZipZipTree import *
 from structures.LTreap import *
 from structures.CTreap import *
 from structures.AVLTree import *
