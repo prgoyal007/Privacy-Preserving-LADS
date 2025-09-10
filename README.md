@@ -1,5 +1,5 @@
-# Disclaimer 
-This GitHub repository is incomplete and will remain so until after the end of September. We are awaiting the results for our research paper submission before we upload our code. Apologies for any inconveniences. 
+# Disclaimer
+Although we utilize Biased ZipZip and Threshold ZipZip Trees in our experimental setup and results, we cannot disclose the code to the public. We apologize for any inconvenience. Please refer to the section where we show you how you can mimic the same Biased property with skip lists. 
 
 # Privacy-Preserving Learning-Augmented Data Structures
 This repository contains the experimental code, data structures, benchmarks, and figures accompanying the paper:
@@ -11,6 +11,9 @@ This repository contains the experimental code, data structures, benchmarks, and
 This repo provides:
 - Source code for data structures and experiments described in the paper
 - Workload benchmarks (Zipfian, Inverse Power)
+
+# How to obtain Biased property for any data structure
+To Do...
 
 # Setup
 1. Make sure Python 3.10+ is installed
@@ -39,7 +42,7 @@ These directories will be ignored by Git (as specified in `.gitignore`) because 
 All test scripts are located in the `tests/` directory. To run a test:
 1. Open a terminal and navigate to the project root directory:
 ```bash
-C:\HI-Research
+C:\Privacy-Preserving-LADS
 ```
 2. Run the desired test using the `-m` flag:
 ```bash
@@ -62,4 +65,4 @@ The `-m` flag tells Python to run the script as a module. This ensures:
 
 ## Notes
 - Always run tests from the project root, not from inside the `tests/` folder.
-- Make sure any new test files are added to the `tests/` directory and that they use absolute imports from `tests` or `structures`.
+- Make sure any new test files are added to the `tests/` directory and that they use absolute imports from `tests/` or `structures/`.
