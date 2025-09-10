@@ -62,7 +62,3 @@ python -m tests.SizeTest
 The `-m` flag tells Python to run the script as a module. This ensures:
 - Imports like `from structures.StaticRSL import *` or `from tests.DataGenerator import *` work correctly.
 - Python resolves imports relative to the project root rather than the script’s folder.
-
-## Notes
-- Always run tests from the project root, not from inside the `tests/` folder.
-- Make sure any new test files are added to the `tests/` directory and that they use absolute imports from `tests/` or `structures/`.
