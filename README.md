@@ -29,7 +29,7 @@ These directories will be ignored by Git (as specified in `.gitignore`) because 
 All test scripts are located in the `tests/` directory. To run a test:
 1. Open a terminal and navigate to the project root directory:
 ```bash
-C:\HI-Research
+C:\HI-Research>
 ```
 2. Run the desired test using the `-m` flag:
 ```bash
