@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-ds_names = ["RobustSL", "ThresholdZipZipTree", "BiasedZipZipTree", "CTreap", "LTreap", "AVL"]
+ds_names = ["RobustSL", "CTreap", "LTreap", "AVL"]
 n_values = [100, 500, 1000, 2000]
 label_names = {
     "CTreap": "C-Treap",

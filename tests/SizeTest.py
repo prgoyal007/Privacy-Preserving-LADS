@@ -2,6 +2,8 @@ import json
 
 from tests.DataGenerator import *
 from structures.StaticRSL import *
+from structures.BiasedZipZipTree import *
+from structures.ThresholdZipZipTree import *
 from structures.LTreap import *
 from structures.CTreap import *
 from structures.AVLTree import *
@@ -41,27 +43,27 @@ def read_data(path):
     with open(path) as reader:
         return json.load(reader)
 
-# Parameters for Inverse Power Distribution Test
-ns = [100, 500, 1000, 2000]
-alphas = [1.01]
-errors = [0, 0.9]
+# Parameters for Zipfian Tests where Random Order = True
+ns = [100, 500, 1000, 2000, 5000, 10000]
+alphas = [2]
+errors = [0]
 search_size = 100000
 
 __generate_data__ = True
 __test_samples__ = True
 
 trials = 10
-__path_dir__ = "results/InversePowerTest"
+__path_dir__ = "results/SizeTest"
 
 for n in ns:
     for alpha in alphas:
         for idx, error in enumerate(errors):
-            print(f"n: {n}, alpha: {alpha}, Inverse Power (δ={error})")
+            print(f"n: {n}, alpha: {alpha}, Randomized Zipfian (δ={error})")
 
             if __generate_data__:
                 if error == 0:
                     key_values, search_elements, search_frequencies, ranks = generate_keys(n, search_size, alpha,
-                                                                                           __random_order__=False)
+                                                                                           __random_order__=True)
                 else:
                     data = read_data("{2}/data_n{3}_e{0}_a{1}.json".format(0, alpha, __path_dir__, n))
                     key_values = data['keys']
@@ -69,7 +71,7 @@ for n in ns:
                     ranks = data['ranks']
                     search_frequencies = data['search_freq']
 
-                frequencies = exponential_freq(n, ranks, error, alpha)
+                frequencies = zipfi_adversary(n, ranks, error, alpha)
 
                 data = {
                     'keys': key_values,
@@ -88,31 +90,10 @@ for n in ns:
                 search_frequencies = data['search_freq']
 
 
-            # Static RobustSL            
+            # Only Static RobustSL            
             print(f"n: {n}, alpha: {alpha}, Making RobustSL...")
             static_rsl = StaticRSL(key_values.copy(), frequencies.copy(), right_comparison=True)
             TestDS(static_rsl, key_values, search_elements,
                    "{2}/RobustSL_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
-
-            # Chen's Treap
-            print(f"n: {n}, alpha: {alpha}, Making CTreap...")
-            ctreap = Treap(key_values, frequencies=frequencies, log_priority=True)
-            TestDS(ctreap, key_values, search_elements,
-                   "{2}/CTreap_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
-
-            # Lin's Treap
-            print(f"n: {n}, alpha: {alpha}, Making LTreap...")
-            ltreap = Treap(key_values, frequencies=frequencies, log_priority=False)
-            TestDS(ltreap, key_values, search_elements,
-                   "{2}/LTreap_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
-
-            # AVL Tree
-            print(f"n: {n}, alpha: {alpha}, Making AVL Tree...")
-            avl = AVLTree(key_values)
-            TestDS(avl, key_values, search_elements,
-                   "{2}/AVL_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
             
             print(f"\nRobustSL size: {static_rsl.get_size()} nodes")
-            print(f"Chen's Treap size: {ctreap.get_size()} nodes")
-            print(f"Lin's Treap size: {ltreap.get_size()} nodes")
-            print(f"AVL Tree size: {avl.get_size()} nodes\n")
