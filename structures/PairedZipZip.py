@@ -11,9 +11,9 @@ class PairedZipZipTree:
 	- capacity : Maximum number of nodes expected (affects rank scaling)
 	"""
 	def __init__(self, capacity: int):
-    self.biased_zip = BiasedZipZipTree(capacity)
-    self.standard_zip = BiasedZipZipTree(capacity)
-    self.limit_walk = gamma
+    	self.biased_zip = BiasedZipZipTree(capacity)
+    	self.standard_zip = BiasedZipZipTree(capacity)
+    	self.limit_walk = gamma
 
 	"""
 	Insert a new key-value pair into the ZipZipTree, optionally using a given rank.
@@ -33,8 +33,8 @@ class PairedZipZipTree:
 	- Increments self.size by 1.
 	"""
 	def insert(self, key: KeyType, val: ValType, freq: float, rank: Rank = None):
-    self.biased_zip.insert(key, val, freq, rank)
-    self.standard_zip.insert(key, val, None, rank)
+    	self.biased_zip.insert(key, val, freq, rank)
+    	self.standard_zip.insert(key, val, None, rank)
 
 
 	"""
@@ -49,8 +49,8 @@ class PairedZipZipTree:
 	- Decrements self.size by 1.
 	"""
 	def remove(self, key: KeyType):
-    self.biased_zip.remove(key)
-    self.standard_zip.remove(key)
+    	self.biased_zip.remove(key)
+    	self.standard_zip.remove(key)
 
 	"""
 	Find the value associated with a key.
@@ -63,7 +63,7 @@ class PairedZipZipTree:
 	- Value associated with the key if found, else None.
 	"""
 	def find(self, key: KeyType):
-    return self.standard_zip.find()	
+    	return self.standard_zip.find()	
 
 	"""
 	Find a value by key and track the number of comparisons performed.
@@ -78,11 +78,11 @@ class PairedZipZipTree:
 		- cost : number of comparisons performed
 	"""
 	def find_with_cost(self, key: KeyType): 
-    n = self.biased_zip.get_size()
-    found, cost1 = self.biased_zip.find_with_cost(key, self.limit_walk * math.floor(math.log2(n)))
-    if found == False:
-      true_found, cost2 = self.standard_zip.find_with_cost(key)
-    total_cost = cost1 + cost2
+    	n = self.biased_zip.get_size()
+    	found, cost1 = self.biased_zip.find_with_cost(key, self.limit_walk * math.floor(math.log2(n)))
+    	if found == False:
+      		true_found, cost2 = self.standard_zip.find_with_cost(key)
+    	total_cost = cost1 + cost2
 
     return true_found, total_cost
     
