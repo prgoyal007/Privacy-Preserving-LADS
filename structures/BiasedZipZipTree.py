@@ -182,7 +182,7 @@ class ZipZipTree:
 	Parameters:
 	- key : KeyType
 		The key to search for.
-
+  
 	Returns:
 	- Value associated with the key if found, else None.
 	"""
@@ -207,17 +207,21 @@ class ZipZipTree:
 	Parameters:
 	- key : KeyType
 		The key to search for.
+    - max_depth
+	    The farthest we are willing to search before giving up
 
 	Returns:
 	- Tuple (value, cost) where:
 		- value : value associated with key (None if not found)
 		- cost : number of comparisons performed
 	"""
-	def find_with_cost(self, key: KeyType):
+	def find_with_cost(self, key: KeyType, max_depth = math.inf):
 		node = self.root
 		cost = 0
 		while node:
 			cost += 1
+			if cost > max_depth: 
+				return False, cost
 			if key == node.key:
 				# found the key, return the value
 				return node.val, cost
