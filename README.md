@@ -9,7 +9,7 @@ This repository contains the experimental code, data structures, benchmarks, and
 
 
 This repo provides:
-- Source code for data structures and experiments described in the paper
+- Source code for data structures and experiments described in the paper (except ZipZip Tree variants)
 - Workload benchmarks (Zipfian, Inverse Power)
 
 # How to obtain Biased property for any data structure
