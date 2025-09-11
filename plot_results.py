@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-ds_names = ["RobustSL", "ThresholdZipZipTree", "BiasedZipZipTree", "CTreap", "LTreap", "AVL"]
+ds_names = ["RobustSL", "ThresholdZipZipTree", "PairedZipZipTree", "BiasedZipZipTree", "CTreap", "LTreap", "AVL"]
 n_values = [100, 500, 1000, 2000]
 label_names = {
     "CTreap": "C-Treap",
@@ -260,7 +260,6 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
     # hatch_patterns = ["/", "o", "|", "x", "+", "*", "\\", "O", ".", "-"]
     # hatches = [hatch_patterns[i % len(hatch_patterns)] for i in range(num_ds)]
 
-    # ax = plt.gca()
     offsets = (np.arange(num_ds) - (num_ds - 1) / 2.0) * bar_width
 
     all_values = df.to_numpy().flatten()
@@ -347,11 +346,11 @@ def load_avg_sizes(path_dir: str, n_values: List[int]) -> Dict[int, float]:
 
 
 def plot_sizes(avg_sizes_per_n: Dict[int, float], 
-                       n_values: List[int], 
-                       # title: str, 
-                       ylabel: str, 
-                       ax=None, 
-                       ymax_cap: Optional[float] = None):
+               n_values: List[int], 
+               # title: str, 
+               ylabel: str, 
+               ax=None, 
+               ymax_cap: Optional[float] = None):
     if ax is None:
         ax = plt.gca()
     
@@ -368,19 +367,27 @@ def plot_sizes(avg_sizes_per_n: Dict[int, float],
 
     x = np.arange(len(n_values))
 
-    # Split into baseline (n) and overhead (extra beyond n)
+    # Split into baseline (n), 2n, overhead (extra beyond n)
     baseline = np.array(n_values, dtype=float)
-    overhead = np.where(heights > baseline, heights - baseline, 0.0)
+    double_n = baseline * 2
+    overhead = np.where(heights > double_n, heights - double_n, 0.0)
 
     # First bar (baseline, blue)
     bars_base = ax.bar(x, np.minimum(baseline, ymax_cap),
                        color=color_map.get("RobustSL", "#0072B2"),
                        edgecolor="black", width=0.6, label="Baseline size (n) nodes")
+    
+    # Second bar (baseline * 2, stacked on baseline, orange)
+    bars_double_base = ax.bar(x, np.minimum(double_n - baseline, ymax_cap - baseline), 
+                              bottom=np.minimum(baseline, ymax_cap),
+                              color=color_map.get("AVL", "#D55E00"),
+                              edgecolor="black", width=0.6, label="Double size (2n) nodes")
 
-    # Second bar (overhead, stacked on baseline, red)
-    bars_over = ax.bar(x, np.minimum(overhead, ymax_cap - baseline),
-                       bottom=np.minimum(baseline, ymax_cap),
-                       color=color_map.get("C-Treap", "#CC79A7"), edgecolor="black", width=0.6, label="Additional overhead")
+    # Third bar (overhead, stacked on baseline * 2, pink)
+    bars_over = ax.bar(x, np.minimum(overhead, ymax_cap - double_n),
+                       bottom=np.minimum(double_n, ymax_cap),
+                       color=color_map.get("C-Treap", "#CC79A7"), 
+                       edgecolor="black", width=0.6, label="Additional overhead")
 
     
     # ----------------------------------------------------
@@ -439,7 +446,6 @@ def plot_sizes(avg_sizes_per_n: Dict[int, float],
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
     ax.set_ylim(0, ymax_cap * 1.1)
-
     ax.legend(frameon=False, loc="upper left")
 
 
@@ -450,7 +456,7 @@ if __name__ == "__main__":
 
     fig1, axes1 = plt.subplots(1, 3, figsize=(6 * 3, 5), sharey=False)
 
-    # Test 1 (α=2, δ=0) - ROTZipfianTest
+    # Former Test 1 (α=2, δ=0) - ROTZipfianTest
     # path_rot = os.path.join(results_dir, "ROTZipfianTest")
     # avg_rot = load_avg_costs(path_rot, ds_names, n_values, alpha_values=[2.0])
     # plot_grouped_bar({ds: {n: avg_rot[2.0][0.0].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
@@ -465,7 +471,7 @@ if __name__ == "__main__":
     path_rof = os.path.join(results_dir, "ROFZipfianTest")
 
 
-    # Test 3 (α varies, n=2000, δ=0)
+    # Test 1 (α varies, n=2000, δ=0)
     alpha_sweep = [1, 1.25, 1.5, 2, 3]
     avg_alpha = load_avg_costs(path_rof, ds_names, n_values=[2000], alpha_values=alpha_sweep, error_values=[0.0])
     avg_alpha_flat = {alpha: {ds: avg_alpha[alpha][0.0].get(ds, {}).get(2000, np.nan) for ds in ds_names} for alpha in alpha_sweep}
@@ -488,7 +494,7 @@ if __name__ == "__main__":
                      annotate_threshold=25,
                      ymax_cap=25)
 
-    # Test 4 (α=1.01, δ=0,0.9) - InversePowerTest
+    # Test 3 (α=1.01, δ=0,0.9) - InversePowerTest
     path_ip = os.path.join(results_dir, "InversePowerTest")
     # avg_ip = load_avg_costs(path_ip, ds_names, n_values, alpha_values=[1.01], error_values=[0.0, 0.9])
     avg_ip = load_avg_costs(path_ip, ds_names, n_values, alpha_values=[1.01], error_values=[0.9])
@@ -512,8 +518,6 @@ if __name__ == "__main__":
                      ymax_cap=25)
     
     
-
-    
     # Global legend for Figure 1
     handles, labels = axes1[0].get_legend_handles_labels()
     labels = [label_names.get(lbl, lbl) for lbl in labels]
@@ -522,32 +526,16 @@ if __name__ == "__main__":
                 loc="upper center", bbox_to_anchor=(0.5, 0.95))
     plt.show()
 
-    # fig2, axes2 = plt.subplots(1, 2, figsize=(12, 5), sharey=False)    
-
-    # plot_sizes(avg_sizes_per_n=avg_sizes,
-    #            n_values=n_values,
-    #            #title="Average Size of RobustSL (α=2)",
-    #            ylabel="Avg. # of Nodes",
-    #            ax=axes2[1])
-    
-    # # Global legend for Figure 2
-    # handles, labels = axes2[0].get_legend_handles_labels()
-    # fig2.subplots_adjust(top=0.75, wspace=0.25)
-    # fig2.legend(handles, labels, ncol=6, frameon=False,
-    #             loc="upper center", bbox_to_anchor=(0.5, 0.89))
-    # # plt.tight_layout()
-    # plt.show()
-
-    # Plot sizes for RobustSL only
+    # Plot sizes for RobustSL only 
     sizes_dir = os.path.join(results_dir, "SizeTest")
     n_values = [1000, 2000, 5000, 10000]
     avg_sizes = load_avg_sizes(sizes_dir, n_values)
     print("Loaded avg_sizes:", avg_sizes)
 
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig2, axes2 = plt.subplots(figsize=(8, 5))
     plot_sizes(avg_sizes_per_n=avg_sizes,
             n_values=n_values,
             # title="Average Size of RobustSL (α=2)",
             ylabel="Avg. Number of Nodes",
-            ax=ax)
+            ax=axes2)
     plt.show()
