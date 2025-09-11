@@ -354,11 +354,15 @@ def plot_sizes(avg_sizes_per_n: Dict[int, float],
     if ax is None:
         ax = plt.gca()
     
-    heights = [avg_sizes_per_n.get(n, np.nan) for n in n_values]
-    heights = np.array(heights, dtype=float)
-    finite_vals = heights[np.isfinite(heights)]
+    heights = np.array([avg_sizes_per_n.get(n, np.nan) for n in n_values], dtype=float)
+    baseline = np.array(n_values, dtype=float)
+    robustsl_layer = np.where(heights > baseline, heights - baseline, 0.0)
+    paired_layer = baseline * 2
+    paired_layer = np.max(0, paired_layer - (baseline + robustsl_layer))
 
-    # Robust ymax_cap calculation
+    # ymax_cap calculation
+    all_vals = np.concatenate([baseline, baseline + robustsl_layer, baseline + robustsl_layer + paired_layer])
+    finite_vals = all_vals[np.isfinite(all_vals)]
     if ymax_cap is None:
         if finite_vals.size > 0:
             ymax_cap = np.nanpercentile(finite_vals, 95) * 1.2
@@ -366,28 +370,24 @@ def plot_sizes(avg_sizes_per_n: Dict[int, float],
             ymax_cap = 1.0  # fallback
 
     x = np.arange(len(n_values))
+    width = 0.6
 
-    # Split into baseline (n), 2n, overhead (extra beyond n)
-    baseline = np.array(n_values, dtype=float)
-    double_n = baseline * 2
-    overhead = np.where(heights > double_n, heights - double_n, 0.0)
-
-    # First bar (baseline, blue)
-    bars_base = ax.bar(x, np.minimum(baseline, ymax_cap),
-                       color=color_map.get("RobustSL", "#0072B2"),
-                       edgecolor="black", width=0.6, label="Baseline size (n) nodes")
+    # Baseline layer (blue)
+    ax.bar(x, np.minimum(baseline, ymax_cap),
+           color=color_map.get("RobustSL", "#0072B2"),
+           edgecolor="black", width=width, label="Baseline size (n) nodes")
     
-    # Second bar (baseline * 2, stacked on baseline, orange)
-    bars_double_base = ax.bar(x, np.minimum(double_n - baseline, ymax_cap - baseline), 
-                              bottom=np.minimum(baseline, ymax_cap),
-                              color=color_map.get("AVL", "#D55E00"),
-                              edgecolor="black", width=0.6, label="Double size (2n) nodes")
-
-    # Third bar (overhead, stacked on baseline * 2, pink)
-    bars_over = ax.bar(x, np.minimum(overhead, ymax_cap - double_n),
-                       bottom=np.minimum(double_n, ymax_cap),
-                       color=color_map.get("C-Treap", "#CC79A7"), 
-                       edgecolor="black", width=0.6, label="Additional overhead")
+    # RobustSL layer (stacked on baseline, pink)
+    ax.bar(x, np.minimum(robustsl_layer, ymax_cap - baseline),
+           bottom=np.minimum(baseline, ymax_cap),
+           color=color_map.get("C-Treap", "#CC79A7"), 
+           edgecolor="black", width=width, label="RobustSL overhead")
+    
+    # Paired Zip Zip layer (stacked on robustsl_layer, orange)
+    ax.bar(x, np.minimum(paired_layer, ymax_cap - (baseline + robustsl_layer)), 
+           bottom=np.minimum(baseline + robustsl_layer, ymax_cap),
+           color=color_map.get("AVL", "#D55E00"),
+           edgecolor="black", width=width, label="Paired ZipZip overhead; (2n) nodes")
 
     
     # ----------------------------------------------------
