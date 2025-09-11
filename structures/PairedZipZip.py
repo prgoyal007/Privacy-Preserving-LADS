@@ -1,4 +1,5 @@
 from structures.BiasedZipZipTree import *
+import math
 
 gamma = 1
 
@@ -11,8 +12,8 @@ class PairedZipZipTree:
 	- capacity : Maximum number of nodes expected (affects rank scaling)
 	"""
 	def __init__(self, capacity: int):
-		self.biased_zip = BiasedZipZipTree(capacity)
-		self.standard_zip = BiasedZipZipTree(capacity)
+		self.biased_zip = ZipZipTree(capacity)
+		self.standard_zip = ZipZipTree(capacity)
 		self.limit_walk = gamma
 	
 
@@ -65,7 +66,7 @@ class PairedZipZipTree:
 	- Value associated with the key if found, else None.
 	"""
 	def find(self, key: KeyType):
-		return self.standard_zip.find()
+		return self.standard_zip.find(key)
 	
 
 	"""
@@ -82,8 +83,11 @@ class PairedZipZipTree:
 	"""
 	def find_with_cost(self, key: KeyType):
 		n = self.biased_zip.get_size()
-		cost1, cost2 = 0
-		found, cost1 = self.biased_zip.find_with_cost(key, self.limit_walk * math.floor(math.log2(n)))
+		cost1, cost2 = 0, 0
+		
+		steps = self.limit_walk * math.floor(math.log2(max(2, n)))
+		found, cost1 = self.biased_zip.find_with_cost(key, steps)
+		true_found = found
 
 		if found is False:
 			true_found, cost2 = self.standard_zip.find_with_cost(key)
