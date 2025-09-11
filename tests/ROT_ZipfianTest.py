@@ -4,6 +4,7 @@ from tests.DataGenerator import *
 from structures.StaticRSL import *
 from structures.BiasedZipZipTree import *
 from structures.ThresholdZipZipTree import *
+from structures.PairedZipZipTree import *
 from structures.LTreap import *
 from structures.CTreap import *
 from structures.AVLTree import *
@@ -103,6 +104,14 @@ for n in ns:
                 tzzt.insert(key, key, freq)
             TestDS(tzzt, key_values, search_elements,
                    "{2}/ThresholdZipZipTree_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
+            
+            # Paired Zip Zip Tree
+            print(f"n: {n}, alpha: {alpha}, Making Paired ZipZip Tree...")
+            pzzt = PairedZipZipTree(n)
+            for key, freq in zip(key_values, frequencies):
+                pzzt.insert(key, key, freq)
+            TestDS(pzzt, key_values, search_elements,
+                   "{2}/PairedZipZipTree_n{3}_e{0}_a{1}.json".format(int(error * 100), alpha, __path_dir__, n))
 
             # Biased ZipZip Tree
             print(f"n: {n}, alpha: {alpha}, Making Biased ZipZip Tree...")
@@ -132,6 +141,7 @@ for n in ns:
             
             print(f"\nRobustSL size: {static_rsl.get_size()} nodes")
             print(f"Threshold ZipZip Tree size: {tzzt.get_size()} nodes")
+            print(f"Paired ZipZip Tree size: {pzzt.get_size()} nodes")
             print(f"Biased ZipZip Tree size: {bzzt.get_size()} nodes")
             print(f"Chen's Treap size: {ctreap.get_size()} nodes")
             print(f"Lin's Treap size: {ltreap.get_size()} nodes")
