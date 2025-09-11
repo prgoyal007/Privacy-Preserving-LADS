@@ -12,7 +12,6 @@ label_names = {
     "LTreap": "L-Treap",
 }
 
-
 # Publication-like rc styling 
 mpl.rcParams.update({
     "font.family": "arial",
@@ -30,20 +29,6 @@ mpl.rcParams.update({
     "axes.grid": False,
 })
 
-
-# Color palette (similar to RobustSL paper look)
-# color_map = {
-#     "RobustSL": "#2A73C7",            # blue
-#     "ThresholdZipZipTree": "#F2C57C", # warm tan
-#     "BiasedZipZipTree": "#9ACD9A",    # light green
-#     "CTreap": "#E6A0C4",              # light pink
-#     "LTreap": "#C0C0F0",              # pale purple
-#     "AVL": "#E8B4A2",                 # salmon
-# }
-
-# fallback palette if dataset missing
-# default_colors = ["#2A73C7", "#9ACD9A", "#E6A0C4", "#C0C0F0", "#E8B4A2", "#F2C57C"]
-
 # Okabe-Ito color-blind friendly palette
 color_map = {
     "RobustSL": "#0072B2",            # blue
@@ -56,6 +41,8 @@ color_map = {
 }
 default_colors = ["#0072B2", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#E69F00"]
 
+
+
 def _alpha_to_fname_part(alpha: float) -> str:
     if float(alpha).is_integer():
         return str(int(round(alpha)))
@@ -63,6 +50,8 @@ def _alpha_to_fname_part(alpha: float) -> str:
     # Use repr-like conversion but strip trailing zeros
     s = ('%f' % alpha).rstrip('0').rstrip('.')
     return s
+
+
 
 def detect_error_values(path_dir: str, ds: str, n: int, alpha: float) -> List[float]:
     alpha_part = _alpha_to_fname_part(alpha)
@@ -97,6 +86,7 @@ def detect_error_values(path_dir: str, ds: str, n: int, alpha: float) -> List[fl
     if not results:
         return [0.0]
     return sorted(results)
+
 
 
 def load_avg_costs(path_dir: str, 
@@ -152,6 +142,7 @@ def load_avg_costs(path_dir: str,
                     avg_costs[alpha][ev][ds][n] = value
 
     return avg_costs
+
 
 
 def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
@@ -229,7 +220,6 @@ def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
     ax.grid(axis="y", linestyle=":", linewidth=0.6, zorder=0)
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
-
 
 
 
@@ -320,6 +310,8 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
     plt.tight_layout(rect=[0, 0, 1, 0.95])
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
+
 
 def load_avg_sizes(path_dir: str, n_values: List[int]) -> Dict[int, float]:
     ds = "RobustSL"
@@ -535,9 +527,12 @@ if __name__ == "__main__":
     # Global legend for Figure 1
     handles, labels = axes1[0].get_legend_handles_labels()
     labels = [label_names.get(lbl, lbl) for lbl in labels]
-    plt.subplots_adjust(top=0.85, wspace=0.25)  # wider gap between subplots (wspace=0.35)
-    fig1.legend(handles, labels, ncol=6, frameon=False,
-                loc="upper center", bbox_to_anchor=(0.5, 0.95))
+
+    ncols = len(handles)
+    fig1.legend(handles, labels, ncols=ncols, frameon=False,
+                loc="upper center", bbox_to_anchor=(0.5, 0.98),
+                fontsize=12, handlelength=1.2)
+    plt.subplots_adjust(top=0.80, wspace=0.25)  # wider gap between subplots (wspace=0.35)
     plt.show()
 
     # Plot sizes for RobustSL only 
