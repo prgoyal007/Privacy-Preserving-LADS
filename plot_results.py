@@ -48,6 +48,7 @@ mpl.rcParams.update({
 color_map = {
     "RobustSL": "#0072B2",            # blue
     "ThresholdZipZipTree": "#E69F00", # orange
+    "PairedZipZipTree": "#984EA3",    # purple    
     "BiasedZipZipTree": "#009E73",    # green
     "CTreap": "#CC79A7",              # pink
     "LTreap": "#56B4E9",              # light blue
@@ -355,37 +356,50 @@ def plot_sizes(avg_sizes_per_n: Dict[int, float],
         ax = plt.gca()
     
     heights = np.array([avg_sizes_per_n.get(n, np.nan) for n in n_values], dtype=float)
+
     baseline = np.array(n_values, dtype=float)
-    robustsl_layer = np.where(heights > baseline, heights - baseline, 0.0)
-    paired_layer = baseline * 2
-    paired_layer = np.max(0, paired_layer - (baseline + robustsl_layer))
+    robust_overhead = np.maximum(0.0, heights - baseline)
+    paired_overhead = np.maximum(0.0, 2.0 * baseline - heights)
+
+
+    # robustsl_layer = np.where(heights > baseline, heights - baseline, 0.0)
+    # paired_layer = baseline * 2
+    # paired_layer = np.max(0, paired_layer - (baseline + robustsl_layer))
 
     # ymax_cap calculation
-    all_vals = np.concatenate([baseline, baseline + robustsl_layer, baseline + robustsl_layer + paired_layer])
-    finite_vals = all_vals[np.isfinite(all_vals)]
+    stacked_totals = baseline + robust_overhead + paired_overhead
+    finite_vals = stacked_totals[np.isfinite(stacked_totals)]
     if ymax_cap is None:
         if finite_vals.size > 0:
             ymax_cap = np.nanpercentile(finite_vals, 95) * 1.2
         else:
-            ymax_cap = 1.0  # fallback
+            ymax_cap = np.nanmax([baseline.max(), 1.0]) * 1.2
+
+    # all_vals = np.concatenate([baseline, baseline + robustsl_layer, baseline + robustsl_layer + paired_layer])
+    # finite_vals = all_vals[np.isfinite(all_vals)]
+    # if ymax_cap is None:
+    #    if finite_vals.size > 0:
+    #        ymax_cap = np.nanpercentile(finite_vals, 95) * 1.2
+    #    else:
+    #        ymax_cap = 1.0  # fallback
 
     x = np.arange(len(n_values))
     width = 0.6
 
-    # Baseline layer (blue)
+    # Bottom: Baseline n layer (blue)
     ax.bar(x, np.minimum(baseline, ymax_cap),
            color=color_map.get("RobustSL", "#0072B2"),
            edgecolor="black", width=width, label="Baseline size (n) nodes")
     
-    # RobustSL layer (stacked on baseline, pink)
-    ax.bar(x, np.minimum(robustsl_layer, ymax_cap - baseline),
+    # Middle: RobustSL overhead (stacked on baseline, pink)
+    ax.bar(x, np.minimum(robust_overhead, np.maximum(0, ymax_cap - baseline)),
            bottom=np.minimum(baseline, ymax_cap),
            color=color_map.get("C-Treap", "#CC79A7"), 
            edgecolor="black", width=width, label="RobustSL overhead")
     
-    # Paired Zip Zip layer (stacked on robustsl_layer, orange)
-    ax.bar(x, np.minimum(paired_layer, ymax_cap - (baseline + robustsl_layer)), 
-           bottom=np.minimum(baseline + robustsl_layer, ymax_cap),
+    # Top: Paired ZipZip overhead (stacked on baseline + robust_overhead, orange)
+    ax.bar(x, np.minimum(paired_overhead, np.maximum(0, ymax_cap - (baseline + robust_overhead))), 
+           bottom=np.minimum(baseline + robust_overhead, ymax_cap),
            color=color_map.get("AVL", "#D55E00"),
            edgecolor="black", width=width, label="Paired ZipZip overhead; (2n) nodes")
 
