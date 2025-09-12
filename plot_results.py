@@ -31,13 +31,13 @@ mpl.rcParams.update({
 
 # Okabe-Ito color-blind friendly palette
 color_map = {
-    "RobustSL": "#0072B2",            # blue
-    "ThresholdZipZipTree": "#E69F00", # orange
+    "RobustSL": "#0072B2",            # dark blue
+    "ThresholdZipZipTree": "#E69F00", # mustard yellow
     "PairedZipZipTree": "#984EA3",    # purple    
     "BiasedZipZipTree": "#009E73",    # green
     "CTreap": "#CC79A7",              # pink
     "LTreap": "#56B4E9",              # light blue
-    "AVL": "#D55E00",                 # red
+    "AVL": "#D55E00",                 # orange
 }
 default_colors = ["#0072B2", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#E69F00"]
 
@@ -353,11 +353,6 @@ def plot_sizes(avg_sizes_per_n: Dict[int, float],
     robust_overhead = np.maximum(0.0, heights - baseline)
     paired_overhead = np.maximum(0.0, 2.0 * baseline - heights)
 
-
-    # robustsl_layer = np.where(heights > baseline, heights - baseline, 0.0)
-    # paired_layer = baseline * 2
-    # paired_layer = np.max(0, paired_layer - (baseline + robustsl_layer))
-
     # ymax_cap calculation
     stacked_totals = baseline + robust_overhead + paired_overhead
     finite_vals = stacked_totals[np.isfinite(stacked_totals)]
@@ -367,33 +362,25 @@ def plot_sizes(avg_sizes_per_n: Dict[int, float],
         else:
             ymax_cap = np.nanmax([baseline.max(), 1.0]) * 1.2
 
-    # all_vals = np.concatenate([baseline, baseline + robustsl_layer, baseline + robustsl_layer + paired_layer])
-    # finite_vals = all_vals[np.isfinite(all_vals)]
-    # if ymax_cap is None:
-    #    if finite_vals.size > 0:
-    #        ymax_cap = np.nanpercentile(finite_vals, 95) * 1.2
-    #    else:
-    #        ymax_cap = 1.0  # fallback
-
     x = np.arange(len(n_values))
     width = 0.6
 
-    # Bottom: Baseline n layer (blue)
+    # Bottom: Baseline n layer (orange)
     ax.bar(x, np.minimum(baseline, ymax_cap),
-           color=color_map.get("RobustSL", "#0072B2"),
+           color=color_map.get("AVL", "#D55E00"),
            edgecolor="black", width=width, label="Baseline size (n) nodes")
     
-    # Middle: RobustSL overhead (stacked on baseline, pink)
+    # Middle: RobustSL overhead (stacked on Baseline) (blue)
     ax.bar(x, np.minimum(robust_overhead, np.maximum(0, ymax_cap - baseline)),
            bottom=np.minimum(baseline, ymax_cap),
-           color=color_map.get("C-Treap", "#CC79A7"), 
-           edgecolor="black", width=width, label="RobustSL overhead")
+           color=color_map.get("RobustSL", "#0072B2"), 
+           edgecolor="black", width=width, label="Additional overhead of RobustSL")
     
-    # Top: Paired ZipZip overhead (stacked on baseline + robust_overhead, orange)
+    # Top: Paired ZipZip overhead (stacked on baseline + robust_overhead) (green)
     ax.bar(x, np.minimum(paired_overhead, np.maximum(0, ymax_cap - (baseline + robust_overhead))), 
            bottom=np.minimum(baseline + robust_overhead, ymax_cap),
-           color=color_map.get("AVL", "#D55E00"),
-           edgecolor="black", width=width, label="Paired ZipZip overhead; (2n) nodes")
+           color=color_map.get("BiasedZipZipTree", "#009E73"),
+           edgecolor="black", width=width, label="PairedZipZip size (2n)")
 
     
     # ----------------------------------------------------
@@ -531,8 +518,8 @@ if __name__ == "__main__":
     ncols = len(handles)
     fig1.legend(handles, labels, ncols=ncols, frameon=False,
                 loc="upper center", bbox_to_anchor=(0.5, 0.98),
-                fontsize=12, handlelength=1.2)
-    plt.subplots_adjust(top=0.80, wspace=0.25)  # wider gap between subplots (wspace=0.35)
+                fontsize=14, handlelength=1.2)
+    plt.subplots_adjust(top=0.75, wspace=0.25)  # wider gap between subplots (top=0.85, wspace=0.35)
     plt.show()
 
     # Plot sizes for RobustSL only 
