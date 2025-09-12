@@ -192,13 +192,9 @@ def plot_grouped_bar(avg_costs_per_n: Dict[str, Dict[int, float]],
         color = color_map.get(ds, default_colors[i % len(default_colors)])
         xpos = x_centers + offsets[i]
 
-        # bars = ax.bar(xpos, np.minimum(heights, ymax_cap),
-        #               width=bar_width, color=color, edgecolor='black',
-        #               linewidth=0.6, hatch=hatches[i], label=ds, zorder=3)
-
         bars = ax.bar(xpos, np.minimum(heights, ymax_cap),
                       width=bar_width, color=color, edgecolor='black',
-                      linewidth=0.6, label=ds, zorder=3)
+                      linewidth=0.6, label=ds, zorder=3)                    # removed hatch=hatches[i]
 
         for bar, h, group_center in zip(bars, heights, x_centers):
             if h > ymax_cap:
@@ -267,13 +263,10 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
         heights = np.where(nan_mask, 0.0, raw)
         color = color_map.get(ds, default_colors[i % len(default_colors)])
         xpos = x_centers + offsets[i]
-        # bars = ax.bar(xpos, np.minimum(heights, ymax_cap),
-        #               width=bar_width, color=color, edgecolor="black",
-        #               hatch=hatches[i], linewidth=0.6, label=ds, zorder=3)
 
         bars = ax.bar(xpos, np.minimum(heights, ymax_cap),
                       width=bar_width, color=color, edgecolor="black",
-                      linewidth=0.6, label=ds, zorder=3)
+                      linewidth=0.6, label=ds, zorder=3)                    # removed hatch=hatches[i]
 
 
         for bar, h, group_center in zip(bars, heights, x_centers):
@@ -300,12 +293,6 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
     ax.grid(axis="y", linestyle=":", linewidth=0.6, zorder=0)
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
-
-    # patches = [mpl.patches.Patch(facecolor=color_map.get(ds, default_colors[i % len(default_colors)]),
-    #                              edgecolor="black", hatch=hatches[i], label=ds)
-    #            for i, ds in enumerate(ds_order_local)]
-    # # ax.legend(handles=patches, ncol=min(6, num_ds), frameon=False,
-    # #           loc="upper center", bbox_to_anchor=(0.5, 1.25))
 
     plt.tight_layout(rect=[0, 0, 1, 0.95])
     if save_path:
@@ -379,56 +366,8 @@ def plot_sizes(avg_sizes_per_n: Dict[int, float],
     # Top: Paired ZipZip overhead (stacked on baseline + robust_overhead) (green)
     ax.bar(x, np.minimum(paired_overhead, np.maximum(0, ymax_cap - (baseline + robust_overhead))), 
            bottom=np.minimum(baseline + robust_overhead, ymax_cap),
-           color=color_map.get("BiasedZipZipTree", "#009E73"),
+           color=color_map.get("PairedZipZipTree", "#984EA3"),
            edgecolor="black", width=width, label="PairedZipZip size (2n)")
-
-    
-    # ----------------------------------------------------
-    # Commented out annotations (no numbers drawn on bars)
-    #
-    # Annotate inside bars
-    # for i, (b_base, b_over, h) in enumerate(zip(bars_base, bars_over, heights)):
-    #     if np.isfinite(h):
-    #         if i == 0:
-    #             # Special case: for the first bar, put annotations OUTSIDE
-    #             # Baseline label just above the bar
-    #             ax.text(b_base.get_x() + b_base.get_width()/2,
-    #                     b_base.get_height() + 0.2,
-    #                     f"{int(n_values[i])}",
-    #                     ha="center", va="bottom", fontsize=9, color="black", rotation=0)
-    #
-    #             # Overhead label just above total bar height
-    #            if overhead[i] > 0:
-    #                 ax.text(b_over.get_x() + b_over.get_width()/2,
-    #                         b_base.get_height() + b_over.get_height() + 500,
-    #                         f"{int(h)}",
-    #                         ha="center", va="bottom", fontsize=9, color="red", rotation=0)
-    #         elif i == 1:
-    #             # Same thing for second bar, but baseline label INSIDE
-    #             ax.text(b_base.get_x() + b_base.get_width()/2, 
-    #                     b_base.get_height()/2, 
-    #                     f"{int(n_values[i])}", 
-    #                     ha="center", va="center", fontsize=9, color="white", rotation=0)
-    #             
-    #             if overhead[i] > 0:
-    #                 ax.text(b_over.get_x() + b_over.get_width()/2,
-    #                         b_base.get_height() + b_over.get_height() + 25,
-    #                         f"{int(h)}",
-    #                         ha="center", va="bottom", fontsize=9, color="red", rotation=0)
-    #         else:
-    #             # All other bars keep annotations INSIDE
-    #             ax.text(b_base.get_x() + b_base.get_width()/2, 
-    #                     b_base.get_height()/2, 
-    #                     f"{int(n_values[i])}", 
-    #                     ha="center", va="center", fontsize=9, color="white", rotation=0)
-    # 
-    #             if overhead[i] > 0:
-    #                 ax.text(b_over.get_x() + b_over.get_width()/2, 
-    #                         b_base.get_height() + b_over.get_height()/2, 
-    #                         f"{int(h)}", 
-    #                         ha="center", va="center", fontsize=9, color="white", rotation=0)
-    # ----------------------------------------------------
-
 
     ax.set_xticks(x)
     ax.set_xticklabels([str(n) for n in n_values])
