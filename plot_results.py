@@ -517,9 +517,9 @@ if __name__ == "__main__":
 
     ncols = len(handles)
     fig1.legend(handles, labels, ncols=ncols, frameon=False,
-                loc="upper center", bbox_to_anchor=(0.5, 0.98),
-                fontsize=14, handlelength=1.2)
-    plt.subplots_adjust(top=0.75, wspace=0.25)  # wider gap between subplots (top=0.85, wspace=0.35)
+                loc="upper center", bbox_to_anchor=(0.5, 0.92),
+                fontsize=12, handlelength=1.2)
+    plt.subplots_adjust(top=0.80, wspace=0.25)  # wider gap between subplots (top=0.85, wspace=0.35)
     plt.show()
 
     # Plot sizes for RobustSL only 
