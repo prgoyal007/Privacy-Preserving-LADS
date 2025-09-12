@@ -30,20 +30,6 @@ mpl.rcParams.update({
     "axes.grid": False,
 })
 
-
-# Color palette (similar to RobustSL paper look)
-# color_map = {
-#     "RobustSL": "#2A73C7",            # blue
-#     "ThresholdZipZipTree": "#F2C57C", # warm tan
-#     "BiasedZipZipTree": "#9ACD9A",    # light green
-#     "CTreap": "#E6A0C4",              # light pink
-#     "LTreap": "#C0C0F0",              # pale purple
-#     "AVL": "#E8B4A2",                 # salmon
-# }
-
-# fallback palette if dataset missing
-# default_colors = ["#2A73C7", "#9ACD9A", "#E6A0C4", "#C0C0F0", "#E8B4A2", "#F2C57C"]
-
 # Okabe-Ito color-blind friendly palette
 color_map = {
     "RobustSL": "#0072B2",            # blue
@@ -260,7 +246,6 @@ def plot_zipf_parameter_sweep(avg_costs_per_alpha: Dict[float, Dict[str, float]]
     # hatch_patterns = ["/", "o", "|", "x", "+", "*", "\\", "O", ".", "-"]
     # hatches = [hatch_patterns[i % len(hatch_patterns)] for i in range(num_ds)]
 
-    # ax = plt.gca()
     offsets = (np.arange(num_ds) - (num_ds - 1) / 2.0) * bar_width
 
     all_values = df.to_numpy().flatten()
@@ -382,54 +367,6 @@ def plot_sizes(avg_sizes_per_n: Dict[int, float],
                        bottom=np.minimum(baseline, ymax_cap),
                        color=color_map.get("C-Treap", "#CC79A7"), edgecolor="black", width=0.6, label="Additional overhead")
 
-    
-    # ----------------------------------------------------
-    # Commented out annotations (no numbers drawn on bars)
-    #
-    # Annotate inside bars
-    # for i, (b_base, b_over, h) in enumerate(zip(bars_base, bars_over, heights)):
-    #     if np.isfinite(h):
-    #         if i == 0:
-    #             # Special case: for the first bar, put annotations OUTSIDE
-    #             # Baseline label just above the bar
-    #             ax.text(b_base.get_x() + b_base.get_width()/2,
-    #                     b_base.get_height() + 0.2,
-    #                     f"{int(n_values[i])}",
-    #                     ha="center", va="bottom", fontsize=9, color="black", rotation=0)
-    #
-    #             # Overhead label just above total bar height
-    #            if overhead[i] > 0:
-    #                 ax.text(b_over.get_x() + b_over.get_width()/2,
-    #                         b_base.get_height() + b_over.get_height() + 500,
-    #                         f"{int(h)}",
-    #                         ha="center", va="bottom", fontsize=9, color="red", rotation=0)
-    #         elif i == 1:
-    #             # Same thing for second bar, but baseline label INSIDE
-    #             ax.text(b_base.get_x() + b_base.get_width()/2, 
-    #                     b_base.get_height()/2, 
-    #                     f"{int(n_values[i])}", 
-    #                     ha="center", va="center", fontsize=9, color="white", rotation=0)
-    #             
-    #             if overhead[i] > 0:
-    #                 ax.text(b_over.get_x() + b_over.get_width()/2,
-    #                         b_base.get_height() + b_over.get_height() + 25,
-    #                         f"{int(h)}",
-    #                         ha="center", va="bottom", fontsize=9, color="red", rotation=0)
-    #         else:
-    #             # All other bars keep annotations INSIDE
-    #             ax.text(b_base.get_x() + b_base.get_width()/2, 
-    #                     b_base.get_height()/2, 
-    #                     f"{int(n_values[i])}", 
-    #                     ha="center", va="center", fontsize=9, color="white", rotation=0)
-    # 
-    #             if overhead[i] > 0:
-    #                 ax.text(b_over.get_x() + b_over.get_width()/2, 
-    #                         b_base.get_height() + b_over.get_height()/2, 
-    #                         f"{int(h)}", 
-    #                         ha="center", va="center", fontsize=9, color="white", rotation=0)
-    # ----------------------------------------------------
-
-
     ax.set_xticks(x)
     ax.set_xticklabels([str(n) for n in n_values])
     ax.set_xlabel("Number of keys (n)")
@@ -450,22 +387,10 @@ if __name__ == "__main__":
 
     fig1, axes1 = plt.subplots(1, 3, figsize=(6 * 3, 5), sharey=False)
 
-    # Test 1 (α=2, δ=0) - ROTZipfianTest
-    # path_rot = os.path.join(results_dir, "ROTZipfianTest")
-    # avg_rot = load_avg_costs(path_rot, ds_names, n_values, alpha_values=[2.0])
-    # plot_grouped_bar({ds: {n: avg_rot[2.0][0.0].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
-    #                  n_values, 
-    #                  # title="Ideal Zipfian Test (α=2, δ=0)", 
-    #                  ylabel="Avg. # of Comparisons per Query",
-    #                  ax=axes1[0],
-    #                  ds_order=ds_names,
-    #                  annotate_threshold=25,
-    #                  ymax_cap=25)
-
     path_rof = os.path.join(results_dir, "ROFZipfianTest")
 
 
-    # Test 3 (α varies, n=2000, δ=0)
+    # Test 1 (α varies, n=2000, δ=0)
     alpha_sweep = [1, 1.25, 1.5, 2, 3]
     avg_alpha = load_avg_costs(path_rof, ds_names, n_values=[2000], alpha_values=alpha_sweep, error_values=[0.0])
     avg_alpha_flat = {alpha: {ds: avg_alpha[alpha][0.0].get(ds, {}).get(2000, np.nan) for ds in ds_names} for alpha in alpha_sweep}
@@ -488,19 +413,10 @@ if __name__ == "__main__":
                      annotate_threshold=25,
                      ymax_cap=25)
 
-    # Test 4 (α=1.01, δ=0,0.9) - InversePowerTest
+    # Test 3 (α=1.01, δ=0,0.9) - InversePowerTest
     path_ip = os.path.join(results_dir, "InversePowerTest")
     # avg_ip = load_avg_costs(path_ip, ds_names, n_values, alpha_values=[1.01], error_values=[0.0, 0.9])
     avg_ip = load_avg_costs(path_ip, ds_names, n_values, alpha_values=[1.01], error_values=[0.9])
-    
-    # plot_grouped_bar({ds: {n: avg_ip[1.01][0.0].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
-    #                     n_values,
-    #                     "Inverse Power Distribution Test (α=1.01, δ=0.0)",
-    #                     "Avg. # of Comparisons per Query",
-    #                     ax=axes2[0],
-    #                     ds_order=ds_names,
-    #                     annotate_threshold=25,
-    #                     ymax_cap=25)
 
     plot_grouped_bar({ds: {n: avg_ip[1.01][0.9].get(ds, {}).get(n, np.nan) for n in n_values} for ds in ds_names},
                      n_values,
@@ -521,22 +437,6 @@ if __name__ == "__main__":
     fig1.legend(handles, labels, ncol=6, frameon=False,
                 loc="upper center", bbox_to_anchor=(0.5, 0.95))
     plt.show()
-
-    # fig2, axes2 = plt.subplots(1, 2, figsize=(12, 5), sharey=False)    
-
-    # plot_sizes(avg_sizes_per_n=avg_sizes,
-    #            n_values=n_values,
-    #            #title="Average Size of RobustSL (α=2)",
-    #            ylabel="Avg. # of Nodes",
-    #            ax=axes2[1])
-    
-    # # Global legend for Figure 2
-    # handles, labels = axes2[0].get_legend_handles_labels()
-    # fig2.subplots_adjust(top=0.75, wspace=0.25)
-    # fig2.legend(handles, labels, ncol=6, frameon=False,
-    #             loc="upper center", bbox_to_anchor=(0.5, 0.89))
-    # # plt.tight_layout()
-    # plt.show()
 
     # Plot sizes for RobustSL only
     sizes_dir = os.path.join(results_dir, "SizeTest")
