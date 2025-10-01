@@ -1,6 +1,19 @@
-# History Independent Research
+# Disclaimer
+Although we utilize Biased ZipZip and Threshold ZipZip Trees in our experimental setup and results, we cannot disclose the code to the public. We apologize for any inconvenience. Please refer to the section where we show you how you can mimic the same Biased property with skip lists. 
 
-This repository contains data structures and test scripts for experiments on history-independent data structures
+# Privacy-Preserving Learning-Augmented Data Structures
+This repository contains the experimental code, data structures, benchmarks, and figures accompanying the paper:
+
+**Privacy-Preserving Learning-Augmented Data Structures**
+*Authors: Goyal, et al.*
+
+
+This repo provides:
+- Source code for data structures and experiments described in the paper (except ZipZip Tree variants)
+- Workload benchmarks (Zipfian, Inverse Power)
+
+# How to obtain Biased property for any data structure
+To Do...
 
 ## Setup
 1. Make sure Python 3.10+ is installed
@@ -49,7 +62,3 @@ python -m tests.SizeTest
 The `-m` flag tells Python to run the script as a module. This ensures:
 - Imports like `from structures.StaticRSL import *` or `from tests.DataGenerator import *` work correctly.
 - Python resolves imports relative to the project root rather than the script’s folder.
-
-## Notes
-- Always run tests from the project root, not from inside the `tests/` folder.
-- Make sure any new test files are added to the `tests/` directory and that they use absolute imports from `tests` or `structures`.
