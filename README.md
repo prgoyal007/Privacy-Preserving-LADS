@@ -5,7 +5,7 @@ Although we utilize the Biased, Threshold, and Paired ZipZip trees in our origin
 This repository contains the experimental code, data structures, benchmarks, and figures accompanying the paper:
 
 **Privacy-Preserving Learning-Augmented Data Structures**  
-*Authors: **P. Goyal**, V. Sridhar, and W. Zheng*  
+*Authors: P. Goyal, V. Sridhar, and W. Zheng*  
 (https://arxiv.org/abs/2510.00165) 
 
 ---
