@@ -7,7 +7,10 @@ This repository contains the experimental code, data structures, benchmarks, and
 
 **Privacy-Preserving Learning-Augmented Data Structures**  
 *Authors: P. Goyal, V. Sridhar, and W. Zheng*  
-(https://arxiv.org/abs/2510.00165) 
+(https://arxiv.org/abs/2510.00165)
+
+**Presentation Slide Deck**
+(Uploaded in the GitHub Repo)
 
 ---
 
