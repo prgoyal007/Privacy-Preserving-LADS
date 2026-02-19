@@ -1,5 +1,6 @@
 # Disclaimer
-Although we utilize the Biased, Threshold, and Paired ZipZip trees in our original experimental setup and results, we cannot disclose the code to the public. We apologize for any inconvenience. Please refer to the section where we show you how you can mimic the same Biased property with skip lists. 
+Although we utilize the Biased, Threshold, and Paired ZipZip trees in our original experimental setup and results, we cannot disclose the code to the public. We apologize for any inconvenience.
+<!Please refer to the section where we show you how you can mimic the same Biased property with skip lists.>
 
 # Privacy-Preserving Learning-Augmented Data Structures
 This repository contains the experimental code, data structures, benchmarks, and figures accompanying the paper:
@@ -13,14 +14,6 @@ This repository contains the experimental code, data structures, benchmarks, and
 ### This repository provides:
 - Source code for data structures and experiments described in the paper (except ZipZip Tree variants)
 - Workload benchmarks (Zipfian, Inverse Power)
-
-
-This repo provides:
-- Source code for data structures and experiments described in the paper (except ZipZip Tree variants)
-- Workload benchmarks (Zipfian, Inverse Power)
-
-# How to obtain Biased property for any data structure
-To Do...
 
 ## Setup
 1. Make sure Python 3.10+ is installed
